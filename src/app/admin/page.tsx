@@ -147,6 +147,17 @@ export default function AdminDashboard() {
     if (storedUser) setUserName(storedUser);
 
     fetchData();
+
+    // Auto-load product if scanned from mobile camera via URL parameter (?code=TUK-MEL-001)
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const codeParam = urlParams.get('code') || urlParams.get('scan');
+      if (codeParam) {
+        setActiveTab('qr-scanner');
+        setQrQuery(codeParam);
+        handleScanQR(codeParam);
+      }
+    }
   }, []);
 
   const fetchData = async () => {
@@ -561,9 +572,9 @@ export default function AdminDashboard() {
 
                       {/* Visual SVG QR Code Thumbnail */}
                       <div 
-                        className="w-12 h-12 bg-white border border-neutral-300 p-0.5 shrink-0 shadow-xs"
-                        dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(p.qrCode, 44) }}
-                        title={`QR Code: ${p.qrCode}`}
+                        className="w-12 h-12 bg-white border border-neutral-300 p-0.5 shrink-0 shadow-xs cursor-pointer hover:scale-105 transition-transform"
+                        dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(`https://tukshop.ratchavit.com/admin?code=${p.qrCode}`, 44) }}
+                        title={`QR Code URL: https://tukshop.ratchavit.com/admin?code=${p.qrCode}`}
                       />
                     </div>
 
@@ -940,7 +951,7 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-2 justify-center my-1">
                     <div 
                       className="w-14 h-14 shrink-0 border border-neutral-200"
-                      dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(printQRProduct.qrCode, 55) }}
+                      dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(`https://tukshop.ratchavit.com/admin?code=${printQRProduct.qrCode}`, 55) }}
                     />
                     <div className="text-left font-mono text-[8px] space-y-0.5">
                       <div className="font-bold text-black text-[9px]">{printQRProduct.qrCode}</div>
