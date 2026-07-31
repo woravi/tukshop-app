@@ -318,14 +318,24 @@ export default function Navbar() {
             className="lg:hidden bg-white border-b border-neutral-200 px-6 py-6 font-prompt shadow-xl overflow-hidden"
           >
             <div className="flex flex-col gap-3 text-xs font-semibold uppercase tracking-wider text-neutral-900">
-              <a href="#products" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-neutral-100">สินค้าใหม่</a>
-              <a href="#brands" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-neutral-100">แบรนด์</a>
-              <a href="#products" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-neutral-100">ผู้หญิง</a>
-              <a href="#products" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-neutral-100">ผู้ชาย</a>
-              <a href="#products" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-neutral-100">เด็ก</a>
-              <a href="#products" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-neutral-100 text-red-600 font-bold">สินค้าลดราคา</a>
-              <a href="#products" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-neutral-100">คอลเลกชันพิเศษ & เทรนด์</a>
-              <a href="#about" onClick={() => setMobileMenuOpen(false)} className="py-2">เกี่ยวกับ TukShop</a>
+              {/* Mobile Register Member Button */}
+              <Link 
+                href="/login" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="bg-black text-white text-xs font-bold uppercase tracking-widest p-3 text-center flex items-center justify-center gap-2 mb-2 font-prompt shadow-md"
+              >
+                <User className="w-4 h-4" />
+                <span>✨ สมัครสมาชิก (รับส่วนลด 10%)</span>
+              </Link>
+
+              <Link href="/category/new-arrivals" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-neutral-100">สินค้าใหม่</Link>
+              <Link href="/category/women" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-neutral-100">ผู้หญิง</Link>
+              <Link href="/category/men" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-neutral-100">ผู้ชาย</Link>
+              <Link href="/category/accessories" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-neutral-100">แอคเซสเซอรี่ & หมวก</Link>
+              <Link href="/category/sale" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-neutral-100 text-red-600 font-bold">สินค้าลดราคา</Link>
+              <Link href="/promotions" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-neutral-100">โปรโมชัน & โค้ดส่วนลด</Link>
+              <Link href="/orders" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-neutral-100">ติดตามสถานะพัสดุ</Link>
+              <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="py-2">เข้าสู่ระบบ / ลงทะเบียน</Link>
             </div>
           </motion.div>
         )}
