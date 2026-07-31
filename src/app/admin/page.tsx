@@ -545,15 +545,29 @@ export default function AdminDashboard() {
                 </p>
               </div>
 
-              {(currentRole === 'MANAGER' || currentRole === 'ADMIN') && (
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                {/* BUTTON LABELED JUST 'admin' */}
                 <button
-                  onClick={openAddModal}
-                  className="bg-black text-white text-xs font-bold uppercase tracking-widest px-5 py-2.5 hover:bg-neutral-800 transition-colors flex items-center gap-2 shrink-0"
+                  onClick={() => {
+                    navigator.clipboard.writeText("https://tukshop.ratchavit.com/login");
+                    showToast("คัดลอกลิงก์สมัครสมาชิก (https://tukshop.ratchavit.com/login) เรียบร้อยแล้ว!", "success");
+                  }}
+                  className="bg-black text-white text-xs font-bold uppercase tracking-widest px-4 py-2.5 hover:bg-neutral-800 transition-colors border border-neutral-700 font-mono shadow-xs"
+                  title="ส่งลิงก์หน้าสมัครสมาชิก"
                 >
-                  <Plus className="w-4 h-4" />
-                  <span>+ เพิ่มสินค้าใหม่ (Manager)</span>
+                  admin
                 </button>
-              )}
+
+                {(currentRole === 'MANAGER' || currentRole === 'ADMIN') && (
+                  <button
+                    onClick={openAddModal}
+                    className="bg-black text-white text-xs font-bold uppercase tracking-widest px-5 py-2.5 hover:bg-neutral-800 transition-colors flex items-center gap-2 shrink-0"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>+ เพิ่มสินค้าใหม่ (Manager)</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Products Grid */}

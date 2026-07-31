@@ -40,6 +40,25 @@ export default function PortfolioSection() {
   const [orderToast, setOrderToast] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 2-Click Customer Registration Trigger State
+  const [clickCount, setClickCount] = useState(0);
+  const [showRegModal, setShowRegModal] = useState(false);
+
+  useEffect(() => {
+    const handleGlobalClick = () => {
+      setClickCount((prev) => {
+        const next = prev + 1;
+        if (next === 2 && !localStorage.getItem("tuk_customer_user")) {
+          setShowRegModal(true);
+        }
+        return next;
+      });
+    };
+
+    window.addEventListener("click", handleGlobalClick);
+    return () => window.removeEventListener("click", handleGlobalClick);
+  }, []);
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -470,6 +489,66 @@ export default function PortfolioSection() {
                     </button>
                   </div>
                 )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* 2-CLICK CUSTOMER REGISTRATION PROMPT MODAL */}
+        <AnimatePresence>
+          {showRegModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowRegModal(false)}
+              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer font-prompt"
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 15 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 15 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white border-2 border-black max-w-sm w-full p-6 shadow-2xl cursor-default relative text-center"
+              >
+                <button
+                  onClick={() => setShowRegModal(false)}
+                  className="absolute top-4 right-4 p-2 text-black hover:opacity-60"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <span className="text-[9px] font-mono font-bold bg-amber-400 text-black px-2.5 py-0.5 uppercase tracking-wider">
+                    SPECIAL WELCOME PERK 🎁
+                  </span>
+                </div>
+
+                <h3 className="font-prompt font-black text-xl text-black uppercase mb-2">
+                  สมัครสมาชิกวันนี้ รับส่วนลด 10%
+                </h3>
+                <p className="font-kanit text-xs text-neutral-600 font-light mb-6">
+                  ลงทะเบียนสมาชิก TukShop ฟรี เพื่อรับโค้ดส่วนลด 10% (WELCOME10) และสะสมแต้ม JPS Points ทันที!
+                </p>
+
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      setShowRegModal(false);
+                      router.push("/login");
+                    }}
+                    className="w-full bg-black text-white text-xs font-bold uppercase tracking-widest py-3.5 hover:bg-neutral-800 transition-colors font-prompt shadow-md"
+                  >
+                    👉 คลิกสมัครสมาชิกที่นี่ (รับส่วนลด 10%)
+                  </button>
+                  
+                  <button
+                    onClick={() => setShowRegModal(false)}
+                    className="w-full bg-white text-neutral-500 text-[10px] font-kanit py-2 hover:text-black"
+                  >
+                    ไว้ทีหลัง
+                  </button>
+                </div>
               </motion.div>
             </motion.div>
           )}

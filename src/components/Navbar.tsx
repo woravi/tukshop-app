@@ -81,17 +81,17 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Top Right Utility Bar (Language, Account, Search, Cart) */}
+          {/* Top Right Utility Bar (Account, Search, Cart) */}
           <div className="flex items-center gap-6 text-xs text-neutral-800">
-            {/* Language Switcher */}
-            <button className="hidden sm:flex items-center gap-1 hover:text-black font-medium">
-              <Globe className="w-3.5 h-3.5" />
-              <span>ภาษา (TH)</span>
-            </button>
 
-            {/* Customer Account Login Link */}
-            <Link href="/login" className="p-1 text-black hover:opacity-60 transition-opacity" title="เข้าสู่ระบบ / ลงทะเบียน">
-              <User className="w-4 h-4" />
+            {/* Customer Register Member Button */}
+            <Link 
+              href="/login" 
+              className="bg-black text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 hover:bg-neutral-800 transition-colors flex items-center gap-1.5 shadow-2xs font-prompt"
+              title="สมัครสมาชิกใหม่รับส่วนลด 10%"
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>✨ สมัครสมาชิก</span>
             </Link>
 
             {/* Admin Back-Office Link */}

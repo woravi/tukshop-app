@@ -50,7 +50,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     stock: 45,
     badge: "GWP 100% OFF",
     qrCode: "TUK-MEL-001",
-    image: "/images/studio_hero_banner.jpg",
+    image: "/images/melissa_pack_go.jpg",
     description: "กระเป๋าเดินทางรุ่นลิมิเต็ด Melissa Pack & Go ของขวัญพิเศษเมื่อช้อปครบตามเงื่อนไข"
   },
   {
@@ -62,7 +62,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     stock: 20,
     badge: "RIIZE'S PICK",
     qrCode: "TUK-SAT-002",
-    image: "/images/fashion_jacket.jpg",
+    image: "/images/satur_cardigan.jpg",
     description: "เสื้อคาร์ดิแกนผ้าลินินทรงลูส สวมสบาย ดีไซน์พรีเมียมจาก SATUR คอลเลกชันใหม่ล่าสุด"
   },
   {
@@ -74,7 +74,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     stock: 35,
     badge: "NEW ARRIVAL",
     qrCode: "TUK-SAT-003",
-    image: "/images/studio_hero_banner.jpg",
+    image: "/images/satur_ball_cap.jpg",
     description: "หมวกแก๊ปปักลายโลโก้ ทรงสวย สีฟอก Contrast Dyed เท่ไม่ซ้ำใคร"
   },
   {
@@ -86,7 +86,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     stock: 18,
     badge: "HOT ITEM",
     qrCode: "TUK-QUI-004",
-    image: "/images/fashion_jacket.jpg",
+    image: "/images/quinn_tshirt.jpg",
     description: "เสื้อยืดแขนสั้นเนื้อผ้าคอตตอน 100% ปักลายเนี๊ยบ ทรงสวยเข้ารูป"
   },
   {
@@ -110,7 +110,7 @@ const FALLBACK_PRODUCTS: Product[] = [
     stock: 25,
     badge: "MUST HAVE",
     qrCode: "TUK-QUI-006",
-    image: "/images/studio_hero_banner.jpg",
+    image: "/images/quinn_denim_jeans.jpg",
     description: "กางเกงยีนส์เอวสูงทรงขากว้าง ช่วยให้ช่วงขาดูเรียวยาว เนื้อผ้าเดนิมพรีเมียม"
   }
 ];
