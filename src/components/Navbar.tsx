@@ -89,6 +89,11 @@ export default function Navbar() {
               <span>ภาษา (TH)</span>
             </button>
 
+            {/* Customer Account Login Link */}
+            <Link href="/login" className="p-1 text-black hover:opacity-60 transition-opacity" title="เข้าสู่ระบบ / ลงทะเบียน">
+              <User className="w-4 h-4" />
+            </Link>
+
             {/* Admin Back-Office Link */}
             <Link href="/admin" className="hidden sm:flex items-center gap-1.5 font-bold text-black hover:underline uppercase tracking-wider bg-neutral-100 border border-neutral-300 px-2.5 py-1">
               <User className="w-3.5 h-3.5" />
