@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { generateQRCodeSVG, generateBarcodeSVG } from "@/lib/qrGenerator";
+import { startCameraStream, stopCameraStream } from "@/lib/cameraScanner";
 import { 
   ShoppingBag, 
   Package, 
@@ -105,6 +106,34 @@ export default function AdminDashboard() {
   const [receiveQty, setReceiveQty] = useState('');
   const [receiveNote, setReceiveNote] = useState('');
   const [scanMessage, setScanMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Live Camera Stream State
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+
+  const toggleCameraScanner = async () => {
+    if (isCameraActive) {
+      stopCameraStream(cameraStream);
+      setCameraStream(null);
+      setIsCameraActive(false);
+    } else {
+      setIsCameraActive(true);
+      setTimeout(async () => {
+        if (videoRef.current) {
+          const stream = await startCameraStream(videoRef.current, (code) => {
+            setQrQuery(code);
+            handleScanQR(code);
+          });
+          setCameraStream(stream);
+          if (!stream) {
+            showToast('ไม่สามารถเข้าถึงกล้องวีดีโอได้ กรุณาอนุญาตให้ใช้งานกล้อง', 'error');
+            setIsCameraActive(false);
+          }
+        }
+      }, 300);
+    }
+  };
 
   // LINE Notification Status
   const [lineStatus, setLineStatus] = useState<string | null>(null);
@@ -604,7 +633,14 @@ export default function AdminDashboard() {
                   type="text"
                   value={qrQuery}
                   onChange={(e) => setQrQuery(e.target.value)}
-                  placeholder="พิมพ์หรือสแกนรหัส QR Code (เช่น TUK-SAT-002)..."
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleScanQR();
+                    }
+                  }}
+                  autoFocus
+                  placeholder="สแกนรหัสบาร์โค้ด หรือพิมพ์ QR Code (เช่น TUK-SAT-002)..."
                   className="bg-neutral-50 border border-neutral-300 text-xs text-black px-4 py-3 font-mono focus:outline-none focus:border-black flex-1"
                 />
                 <button
@@ -612,9 +648,28 @@ export default function AdminDashboard() {
                   className="bg-black text-white text-xs font-bold uppercase tracking-widest px-6 py-3 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 shrink-0"
                 >
                   <Search className="w-4 h-4" />
-                  <span>สแกนค้นหา</span>
+                  <span>ค้นหาข้อมูล</span>
+                </button>
+                <button
+                  onClick={toggleCameraScanner}
+                  className={`text-xs font-bold uppercase tracking-widest px-4 py-3 border transition-colors flex items-center justify-center gap-2 shrink-0 ${
+                    isCameraActive ? 'bg-red-600 text-white border-red-600' : 'bg-neutral-100 text-black border-neutral-300 hover:bg-black hover:text-white'
+                  }`}
+                >
+                  <Camera className="w-4 h-4" />
+                  <span>{isCameraActive ? 'ปิดกล้อง' : '📹 เปิดกล้องสแกน'}</span>
                 </button>
               </div>
+
+              {/* Live Camera Feed Container */}
+              {isCameraActive && (
+                <div className="mb-4 max-w-md mx-auto bg-black p-2 border-2 border-dashed border-red-500 relative">
+                  <span className="text-[9px] font-mono font-bold text-white bg-red-600 px-2 py-0.5 uppercase block w-max mb-1">
+                    🔴 LIVE CAMERA SCANNER (เล็งกล้องไปที่ QR CODE)
+                  </span>
+                  <video ref={videoRef} className="w-full h-48 object-cover bg-neutral-900 border border-neutral-700" />
+                </div>
+              )}
 
               {/* Sample Quick QR Buttons */}
               <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] text-neutral-500">
