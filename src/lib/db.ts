@@ -61,7 +61,7 @@ export interface Member {
   phone: string;
   jpsPoints: number;
   joinedDate: string;
-  provider: 'credentials' | 'line' | 'facebook' | 'google';
+  provider: 'credentials' | 'line' | 'google';
   providerId?: string;
   passwordHash?: string;
 }

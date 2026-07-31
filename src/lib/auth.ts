@@ -1,7 +1,6 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import LineProvider from "next-auth/providers/line";
-import FacebookProvider from "next-auth/providers/facebook";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { findMemberByEmail, findMemberByProvider, createMember } from "@/lib/db";
@@ -37,13 +36,6 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.LINE_CLIENT_SECRET || "",
       authorization: { params: { scope: "openid profile email" } },
     }),
-    FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID || "",
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET || "",
-      authorization: "https://www.facebook.com/v21.0/dialog/oauth?scope=email",
-      token: "https://graph.facebook.com/v21.0/oauth/access_token",
-      userinfo: "https://graph.facebook.com/me?fields=id,name,email,picture",
-    }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
@@ -56,7 +48,7 @@ export const authOptions: NextAuthOptions = {
       }
 
       const providerId = account.providerAccountId;
-      const provider = account.provider as "line" | "facebook" | "google";
+      const provider = account.provider as "line" | "google";
 
       const existingByProvider = findMemberByProvider(provider, providerId);
       if (existingByProvider) {
