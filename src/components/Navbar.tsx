@@ -75,11 +75,11 @@ export default function Navbar() {
           </button>
 
           {/* Brand Logo - studiofour style */}
-          <a href="#" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <span className="font-prompt font-black text-2xl tracking-tighter text-black uppercase">
               Tuk<span className="font-light tracking-widest text-neutral-800">Shop</span> <span className="text-xs font-normal text-neutral-500 font-mono tracking-widest border border-neutral-300 px-1 py-0.5 ml-1">TH</span>
             </span>
-          </a>
+          </Link>
 
           {/* Top Right Utility Bar (Language, Account, Search, Cart) */}
           <div className="flex items-center gap-6 text-xs text-neutral-800">

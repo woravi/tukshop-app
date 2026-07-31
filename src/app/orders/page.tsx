@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, Package, Truck, CheckCircle2, Clock, Printer } from "lucide-react";
+import { Search, Package, Truck, CheckCircle2, Clock, Printer, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import CtaFooter from "@/components/CtaFooter";
 
@@ -55,6 +55,16 @@ export default function OrderTrackingPage() {
 
       <main className="max-w-4xl mx-auto px-4 sm:px-8 pt-24 pb-20">
         
+        <div className="mb-6">
+          <Link 
+            href="/"
+            className="inline-flex items-center gap-2 bg-neutral-100 hover:bg-black hover:text-white text-black font-kanit font-bold text-xs px-4 py-2 border border-neutral-300 transition-colors shadow-2xs"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>← กลับสู่หน้าหลัก (Back to Home)</span>
+          </Link>
+        </div>
+
         <h1 className="font-prompt font-black text-2xl sm:text-3xl uppercase mb-2 text-center">
           ติดตามสถานะคำสั่งซื้อ & พัสดุ (Order Tracking)
         </h1>

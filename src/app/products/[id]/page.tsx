@@ -18,7 +18,8 @@ import {
   Plus, 
   X,
   Share2,
-  ChevronDown
+  ChevronDown,
+  ArrowLeft
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import CtaFooter from "@/components/CtaFooter";
@@ -244,16 +245,26 @@ export default function ProductDetailPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-8 pt-24 pb-20">
         
-        {/* Breadcrumb Navigation */}
-        <nav className="flex items-center gap-2 text-xs text-neutral-500 font-kanit mb-8 uppercase tracking-wider">
-          <Link href="/" className="hover:text-black transition-colors">หน้าแรก</Link>
-          <ChevronRight className="w-3 h-3" />
-          <span className="hover:text-black uppercase">{product.category}</span>
-          <ChevronRight className="w-3 h-3" />
-          <span className="font-bold text-black uppercase">{product.brand}</span>
-          <ChevronRight className="w-3 h-3" />
-          <span className="text-neutral-400 truncate max-w-[200px]">{product.title}</span>
-        </nav>
+        {/* Back to Home Button & Breadcrumb Navigation */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+          <Link 
+            href="/"
+            className="inline-flex items-center gap-2 bg-neutral-100 hover:bg-black hover:text-white text-black font-kanit font-bold text-xs px-4 py-2 border border-neutral-300 transition-colors shadow-2xs"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>← กลับสู่หน้าหลัก (Back to Home)</span>
+          </Link>
+
+          <nav className="flex items-center gap-2 text-xs text-neutral-500 font-kanit uppercase tracking-wider">
+            <Link href="/" className="hover:text-black font-bold text-black underline">หน้าแรก</Link>
+            <ChevronRight className="w-3 h-3 text-neutral-400" />
+            <span className="hover:text-black uppercase">{product.category}</span>
+            <ChevronRight className="w-3 h-3 text-neutral-400" />
+            <span className="font-bold text-black uppercase">{product.brand}</span>
+            <ChevronRight className="w-3 h-3 text-neutral-400" />
+            <span className="text-neutral-400 truncate max-w-[180px]">{product.title}</span>
+          </nav>
+        </div>
 
         {/* 1:1 Studiofour Product Detail Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
