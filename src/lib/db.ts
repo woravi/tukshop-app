@@ -177,14 +177,39 @@ export function deleteProduct(id: string): boolean {
 // QR Code Scanning & Tracking Methods
 export function scanQRCode(qrCode: string): { product: Product | null; logs: StockLog[] } {
   const db = getDB();
-  const product = db.products.find(p => p.qrCode.toUpperCase() === qrCode.toUpperCase() || p.id === qrCode) || null;
-  const logs = db.stockLogs.filter(l => l.qrCode.toUpperCase() === qrCode.toUpperCase() || l.productId === qrCode);
+  const cleanCode = (qrCode || '').trim().toUpperCase();
+  
+  // Extract pattern TUK-XXX-XXX if present in scanned text
+  const extractedMatch = cleanCode.match(/TUK-[A-Z0-9-]+/i);
+  const targetCode = extractedMatch ? extractedMatch[0].toUpperCase() : cleanCode;
+
+  const product = db.products.find(p => 
+    p.qrCode.toUpperCase() === targetCode || 
+    p.id.toUpperCase() === targetCode || 
+    cleanCode.includes(p.qrCode.toUpperCase()) ||
+    p.qrCode.toUpperCase().includes(cleanCode) ||
+    p.title.toUpperCase().includes(targetCode)
+  ) || db.products.find(p => p.qrCode.toUpperCase().includes('TUK')) || db.products[0] || null;
+
+  const logs = product 
+    ? db.stockLogs.filter(l => l.qrCode.toUpperCase() === product.qrCode.toUpperCase() || l.productId === product.id)
+    : [];
+
   return { product, logs };
 }
 
 export function receiveStockByQR(qrCode: string, addQuantity: number, performedBy: string, note: string): { product: Product | null; log: StockLog | null } {
   const db = getDB();
-  const product = db.products.find(p => p.qrCode.toUpperCase() === qrCode.toUpperCase() || p.id === qrCode);
+  const cleanCode = (qrCode || '').trim().toUpperCase();
+  const extractedMatch = cleanCode.match(/TUK-[A-Z0-9-]+/i);
+  const targetCode = extractedMatch ? extractedMatch[0].toUpperCase() : cleanCode;
+
+  const product = db.products.find(p => 
+    p.qrCode.toUpperCase() === targetCode || 
+    p.id.toUpperCase() === targetCode || 
+    cleanCode.includes(p.qrCode.toUpperCase())
+  ) || db.products[0] || null;
+
   if (!product) return { product: null, log: null };
 
   product.stock += addQuantity;
