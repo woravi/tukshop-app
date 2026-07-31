@@ -128,64 +128,55 @@ export default function Navbar() {
           
           {/* สินค้าใหม่ */}
           <div className="relative group py-1 cursor-pointer">
-            <a href="#products" className="hover:text-neutral-600 flex items-center gap-1">
+            <Link href="/category/new-arrivals" className="hover:text-neutral-600 flex items-center gap-1">
               <span>สินค้าใหม่</span>
               <ChevronDown className="w-3 h-3 text-neutral-400 group-hover:rotate-180 transition-transform" />
-            </a>
+            </Link>
             <div className="megamenu-dropdown absolute top-full left-0 w-52 bg-white border border-neutral-200 shadow-xl p-4 flex flex-col gap-2 font-kanit font-normal text-neutral-700 text-xs">
-              <a href="#products" className="hover:text-black font-medium py-1 border-b border-neutral-100">สินค้าใหม่ทั้งหมด</a>
-              <a href="#products" className="hover:text-black py-1">สินค้าใหม่ - ผู้หญิง</a>
-              <a href="#products" className="hover:text-black py-1">สินค้าใหม่ - ผู้ชาย</a>
-              <a href="#products" className="hover:text-black py-1">สินค้าใหม่ - เด็ก</a>
+              <Link href="/category/new-arrivals" className="hover:text-black font-medium py-1 border-b border-neutral-100">สินค้าใหม่ทั้งหมด</Link>
+              <Link href="/category/women" className="hover:text-black py-1">สินค้าใหม่ - ผู้หญิง</Link>
+              <Link href="/category/men" className="hover:text-black py-1">สินค้าใหม่ - ผู้ชาย</Link>
+              <Link href="/category/accessories" className="hover:text-black py-1">สินค้าใหม่ - แอคเซสเซอรี่</Link>
             </div>
           </div>
 
           {/* แบรนด์ */}
           <div className="relative group py-1 cursor-pointer">
-            <a href="#brands" className="hover:text-neutral-600 flex items-center gap-1">
+            <Link href="/brands/QUINN" className="hover:text-neutral-600 flex items-center gap-1">
               <span>แบรนด์</span>
               <ChevronDown className="w-3 h-3 text-neutral-400 group-hover:rotate-180 transition-transform" />
-            </a>
+            </Link>
             <div className="megamenu-dropdown absolute top-full left-0 w-64 bg-white border border-neutral-200 shadow-xl p-4 grid grid-cols-2 gap-2 font-kanit font-normal text-neutral-700 text-xs">
-              <a href="#brands" className="col-span-2 font-bold text-black border-b border-neutral-100 pb-1">แบรนด์ทั้งหมด</a>
-              <a href="#brands" className="hover:text-black">MELISSA</a>
-              <a href="#brands" className="hover:text-black">QUINN</a>
-              <a href="#brands" className="hover:text-black">REEF</a>
-              <a href="#brands" className="hover:text-black">IPANEMA</a>
-              <a href="#brands" className="hover:text-black">MARITHÉ</a>
-              <a href="#brands" className="hover:text-black">HOLSTER</a>
-              <a href="#brands" className="hover:text-black">PUMA</a>
-              <a href="#brands" className="hover:text-black">DIESEL</a>
-              <a href="#brands" className="hover:text-black">SATUR</a>
+              <Link href="/brands/QUINN" className="col-span-2 font-bold text-black border-b border-neutral-100 pb-1">แบรนด์ทั้งหมด</Link>
+              <Link href="/brands/QUINN" className="hover:text-black font-bold">QUINN</Link>
+              <Link href="/brands/SATUR" className="hover:text-black font-bold">SATUR</Link>
+              <Link href="/brands/MELISSA" className="hover:text-black font-bold">MELISSA</Link>
             </div>
           </div>
 
           {/* ผู้หญิง */}
           <div className="relative group py-1 cursor-pointer">
-            <a href="#products" className="hover:text-neutral-600 flex items-center gap-1">
+            <Link href="/category/women" className="hover:text-neutral-600 flex items-center gap-1">
               <span>ผู้หญิง</span>
               <ChevronDown className="w-3 h-3 text-neutral-400 group-hover:rotate-180 transition-transform" />
-            </a>
+            </Link>
             <div className="megamenu-dropdown absolute top-full left-0 w-56 bg-white border border-neutral-200 shadow-xl p-4 flex flex-col gap-2 font-kanit font-normal text-neutral-700 text-xs">
-              <a href="#products" className="hover:text-black font-medium py-1 border-b border-neutral-100">สินค้าผู้หญิงทั้งหมด</a>
-              <a href="#products" className="hover:text-black py-1">เสื้อผ้าผู้หญิง (กางเกง, เดรส, เสื้อยืด)</a>
-              <a href="#products" className="hover:text-black py-1">รองเท้าผู้หญิง (ส้นสูง, รองเท้าแตะ)</a>
-              <a href="#products" className="hover:text-black py-1">กระเป๋าและกระเป๋าสตางค์</a>
-              <a href="#products" className="hover:text-black py-1">เครื่องประดับ & หมวก</a>
+              <Link href="/category/women" className="hover:text-black font-medium py-1 border-b border-neutral-100">สินค้าผู้หญิงทั้งหมด</Link>
+              <Link href="/category/women" className="hover:text-black py-1">เสื้อผ้าผู้หญิง (แจ็คเก็ต, เดรส, เสื้อยืด)</Link>
+              <Link href="/category/accessories" className="hover:text-black py-1">กระเป๋าและกระเป๋าสตางค์</Link>
             </div>
           </div>
 
           {/* ผู้ชาย */}
           <div className="relative group py-1 cursor-pointer">
-            <a href="#products" className="hover:text-neutral-600 flex items-center gap-1">
+            <Link href="/category/men" className="hover:text-neutral-600 flex items-center gap-1">
               <span>ผู้ชาย</span>
               <ChevronDown className="w-3 h-3 text-neutral-400 group-hover:rotate-180 transition-transform" />
-            </a>
+            </Link>
             <div className="megamenu-dropdown absolute top-full left-0 w-56 bg-white border border-neutral-200 shadow-xl p-4 flex flex-col gap-2 font-kanit font-normal text-neutral-700 text-xs">
-              <a href="#products" className="hover:text-black font-medium py-1 border-b border-neutral-100">สินค้าผู้ชายทั้งหมด</a>
-              <a href="#products" className="hover:text-black py-1">เสื้อผ้าผู้ชาย (เสื้อยืด, เชิ้ต, ยีนส์)</a>
-              <a href="#products" className="hover:text-black py-1">รองเท้าผู้ชาย (ผ้าใบ, รองเท้าแตะ)</a>
-              <a href="#products" className="hover:text-black py-1">กระเป๋า & เครื่องประดับ</a>
+              <Link href="/category/men" className="hover:text-black font-medium py-1 border-b border-neutral-100">สินค้าผู้ชายทั้งหมด</Link>
+              <Link href="/category/men" className="hover:text-black py-1">เสื้อคาร์ดิแกน & แจ็คเก็ต</Link>
+              <Link href="/category/accessories" className="hover:text-black py-1">หมวกแก๊ป & แอคเซสเซอรี่</Link>
             </div>
           </div>
 
