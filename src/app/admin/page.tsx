@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { generateQRCodeSVG, generateBarcodeSVG } from "@/lib/qrGenerator";
 import { 
   ShoppingBag, 
   Package, 
@@ -855,16 +856,24 @@ export default function AdminDashboard() {
 
               {/* Printable Label Preview */}
               <div className="printable-area border-2 border-dashed border-neutral-400 p-4 bg-neutral-50 mb-4 flex flex-col items-center justify-center text-center">
-                <div className="qr-label-sticker w-[50mm] h-[30mm] bg-white border border-black p-2 flex flex-col justify-between items-center text-center shadow-xs">
+                <div className="qr-label-sticker w-[52mm] h-[34mm] bg-white border border-black p-2 flex flex-col justify-between items-center text-center shadow-xs">
                   <span className="font-black text-[10px] tracking-tighter uppercase font-prompt">
                     TUK<span className="font-light tracking-widest">SHOP</span> ({printQRProduct.brand})
                   </span>
                   
-                  <div className="w-16 h-16 bg-neutral-900 text-white flex items-center justify-center font-mono text-[8px] font-bold p-1">
-                    [QR: {printQRProduct.qrCode}]
+                  <div className="flex items-center gap-2 justify-center my-1">
+                    <div 
+                      className="w-14 h-14 shrink-0 border border-neutral-200"
+                      dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(printQRProduct.qrCode, 55) }}
+                    />
+                    <div className="text-left font-mono text-[8px] space-y-0.5">
+                      <div className="font-bold text-black text-[9px]">{printQRProduct.qrCode}</div>
+                      <div className="text-neutral-500">CAT: {printQRProduct.category.toUpperCase()}</div>
+                      <div className="text-neutral-500">STOCK: {printQRProduct.stock}</div>
+                    </div>
                   </div>
 
-                  <div>
+                  <div className="w-full border-t border-neutral-200 pt-1">
                     <span className="font-bold text-[9px] text-black font-kanit block line-clamp-1">
                       {printQRProduct.title}
                     </span>

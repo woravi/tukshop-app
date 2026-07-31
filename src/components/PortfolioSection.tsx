@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Heart, ShoppingBag, Eye, ArrowRight, X, Check, QrCode, CreditCard, ShieldCheck } from "lucide-react";
+import { generateQRCodeSVG, generateBarcodeSVG } from "@/lib/qrGenerator";
 
 interface Product {
   id: string;
@@ -433,18 +434,20 @@ export default function PortfolioSection() {
                       เปิดแอปพลิเคชัน Mobile Banking ของทุกธนาคาร เพื่อสแกนชำระเงิน
                     </p>
 
-                    {/* PromptPay QR Simulated Image Card */}
-                    <div className="bg-white border-2 border-black p-4 max-w-[220px] mx-auto shadow-md mb-4 text-center">
-                      <div className="font-bold text-xs tracking-wider text-blue-900 border-b border-neutral-200 pb-1 mb-2">
-                        PROMPTPAY QR
+                    {/* Real Visual PromptPay QR Code */}
+                    <div className="bg-white border-2 border-black p-4 max-w-[240px] mx-auto shadow-md mb-4 text-center">
+                      <div className="font-bold text-xs tracking-wider text-blue-900 border-b border-neutral-200 pb-2 mb-2 flex items-center justify-center gap-1">
+                        <span className="bg-blue-900 text-white text-[9px] font-mono px-1 py-0.5">PromptPay</span>
+                        <span>สแกนจ่ายด้วยทุกธนาคาร</span>
                       </div>
-                      <div className="w-40 h-40 bg-neutral-900 text-white font-mono text-[9px] font-bold mx-auto flex flex-col items-center justify-center p-2 rounded-xs">
-                        <QrCode className="w-16 h-16 text-white mb-2" />
-                        <span>[PROMPTPAY LIVE QR]</span>
-                        <span>ยอดชำระ: ฿{checkoutProduct.price.toLocaleString()}</span>
-                      </div>
-                      <div className="text-[10px] font-bold text-black mt-2 font-mono">
-                        TUKSHOP CO., LTD.
+                      
+                      <div 
+                        className="w-44 h-44 mx-auto border border-neutral-300 p-1 flex items-center justify-center bg-white"
+                        dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(`PROMPTPAY-0105569000123-AMOUNT-${checkoutProduct.price}`, 170) }}
+                      />
+
+                      <div className="text-[10px] font-bold text-black mt-2 font-mono uppercase">
+                        TUKSHOP CO., LTD. (พร้อมเพย์)
                       </div>
                     </div>
 
