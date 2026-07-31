@@ -22,11 +22,87 @@ interface Product {
   description: string;
 }
 
+const DEFAULT_PRODUCTS: Product[] = [
+  {
+    id: "prod-001",
+    brand: "MELISSA",
+    category: "women",
+    title: "NEW🎁 [Not For Sale] Melissa Pack & Go (Free Gift)",
+    price: 0,
+    originalPrice: 1290,
+    stock: 45,
+    badge: "GWP 100% OFF",
+    qrCode: "TUK-MEL-001",
+    image: "/images/melissa_pack_go.jpg",
+    description: "กระเป๋าเดินทางรุ่นลิมิเต็ด Melissa Pack & Go ของขวัญพิเศษเมื่อช้อปครบตามเงื่อนไข"
+  },
+  {
+    id: "prod-002",
+    brand: "SATUR",
+    category: "men",
+    title: "NEW [RIIZE's Pick] (M) Loren Linen Cardigan Black",
+    price: 3590,
+    stock: 20,
+    badge: "RIIZE'S PICK",
+    qrCode: "TUK-SAT-002",
+    image: "/images/satur_cardigan.jpg",
+    description: "เสื้อคาร์ดิแกนผ้าลินินทรงลูส สวมสบาย ดีไซน์พรีเมียมจาก SATUR คอลเลกชันใหม่ล่าสุด"
+  },
+  {
+    id: "prod-003",
+    brand: "SATUR",
+    category: "accessories",
+    title: "NEW (U) Contrast Dyed Ball Cap Red",
+    price: 1590,
+    stock: 35,
+    badge: "NEW ARRIVAL",
+    qrCode: "TUK-SAT-003",
+    image: "/images/satur_ball_cap.jpg",
+    description: "หมวกแก๊ปปักลายโลโก้ ทรงสวย สีฟอก Contrast Dyed เท่ไม่ซ้ำใคร"
+  },
+  {
+    id: "prod-004",
+    brand: "QUINN",
+    category: "women",
+    title: "NEW เสื้อยืดแขนสั้นปักลายคอลเลกชัน Quinn Fall",
+    price: 2290,
+    stock: 18,
+    badge: "HOT ITEM",
+    qrCode: "TUK-QUI-004",
+    image: "/images/quinn_tshirt.jpg",
+    description: "เสื้อยืดแขนสั้นเนื้อผ้าคอตตอน 100% ปักลายเนี๊ยบ ทรงสวยเข้ารูป"
+  },
+  {
+    id: "prod-005",
+    brand: "QUINN",
+    category: "women",
+    title: "NEW แจ็คเก็ตฮู้ดดี้แต่งซิปคู่ ดีไซน์สปอร์ตชิค",
+    price: 4990,
+    stock: 12,
+    badge: "LIMITED",
+    qrCode: "TUK-QUI-005",
+    image: "/images/fashion_jacket.jpg",
+    description: "แจ็คเก็ตฮู้ดดี้แต่งซิปคู่ เนื้อผ้านุ่ม อบอุ่น แมตช์ง่ายกับทุกสไตล์"
+  },
+  {
+    id: "prod-006",
+    brand: "QUINN",
+    category: "women",
+    title: "NEW กางเกงเดนิมขายาวทรงขากว้าง สีฟอกทูโทน",
+    price: 3290,
+    stock: 25,
+    badge: "MUST HAVE",
+    qrCode: "TUK-QUI-006",
+    image: "/images/quinn_denim_jeans.jpg",
+    description: "กางเกงยีนส์เอวสูงทรงขากว้าง ช่วยให้ช่วงขาดูเรียวยาว เนื้อผ้าเดนิมพรีเมียม"
+  }
+];
+
 export default function PortfolioSection() {
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState("all");
   const [wishlist, setWishlist] = useState<string[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>(DEFAULT_PRODUCTS);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Real Checkout & PromptPay QR Modal State

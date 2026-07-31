@@ -71,7 +71,10 @@ export interface DBData {
   members: Member[];
 }
 
-// Read database from disk
+let memoryDB: DBData | null = null;
+let lastMtime: number = 0;
+
+// Read database from disk with RAM memory caching
 export function getDB(): DBData {
   try {
     if (!fs.existsSync(DB_PATH)) {
@@ -83,20 +86,33 @@ export function getDB(): DBData {
         members: []
       };
       fs.writeFileSync(DB_PATH, JSON.stringify(initial, null, 2), 'utf-8');
+      memoryDB = initial;
       return initial;
     }
+    
+    // Check file modification time to return instant RAM cache
+    const stat = fs.statSync(DB_PATH);
+    if (memoryDB && stat.mtimeMs === lastMtime) {
+      return memoryDB;
+    }
+
     const raw = fs.readFileSync(DB_PATH, 'utf-8');
-    return JSON.parse(raw);
+    memoryDB = JSON.parse(raw);
+    lastMtime = stat.mtimeMs;
+    return memoryDB!;
   } catch (error) {
     console.error('Error reading DB:', error);
+    if (memoryDB) return memoryDB;
     return { users: [], products: [], stockLogs: [], orders: [], members: [] };
   }
 }
 
-// Save database to disk
+// Save database to disk and update RAM cache
 export function saveDB(data: DBData): void {
   try {
+    memoryDB = data;
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
+    lastMtime = fs.statSync(DB_PATH).mtimeMs;
   } catch (error) {
     console.error('Error writing DB:', error);
   }
