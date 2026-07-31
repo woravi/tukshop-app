@@ -61,6 +61,9 @@ export interface Member {
   phone: string;
   jpsPoints: number;
   joinedDate: string;
+  provider: 'credentials' | 'line' | 'facebook' | 'google';
+  providerId?: string;
+  passwordHash?: string;
 }
 
 export interface DBData {
@@ -293,4 +296,27 @@ export function updateOrderStatus(orderId: string, status: Order['status']): Ord
   order.status = status;
   saveDB(db);
   return order;
+}
+
+// Members / Customer Account Helper Methods
+export function findMemberByEmail(email: string): Member | undefined {
+  const cleanEmail = (email || '').trim().toLowerCase();
+  return getDB().members.find(m => m.email.toLowerCase() === cleanEmail);
+}
+
+export function findMemberByProvider(provider: Member['provider'], providerId: string): Member | undefined {
+  return getDB().members.find(m => m.provider === provider && m.providerId === providerId);
+}
+
+export function createMember(data: Omit<Member, 'id' | 'jpsPoints' | 'joinedDate'>): Member {
+  const db = getDB();
+  const newMember: Member = {
+    ...data,
+    id: `mem-${Date.now()}`,
+    jpsPoints: 0,
+    joinedDate: new Date().toISOString().substring(0, 10)
+  };
+  db.members.unshift(newMember);
+  saveDB(db);
+  return newMember;
 }

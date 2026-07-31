@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Check, X, ArrowRight, User, Eye, EyeOff } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import CtaFooter from "@/components/CtaFooter";
@@ -17,6 +18,9 @@ function CustomerAuthContent() {
     if (searchParams.get("mode") === "register") {
       setMode("register");
     }
+    if (searchParams.get("error") === "EmailInUse") {
+      setErrorToast("อีเมลนี้เคยลงทะเบียนไว้แล้ว กรุณาเข้าสู่ระบบด้วยอีเมล/รหัสผ่านที่เคยสมัครไว้");
+    }
   }, [searchParams]);
 
   // Form Data States
@@ -29,25 +33,50 @@ function CustomerAuthContent() {
 
   // Status & Cookie Consent
   const [statusToast, setStatusToast] = useState<string | null>(null);
+  const [errorToast, setErrorToast] = useState<string | null>(null);
   const [isCookieAccepted, setIsCookieAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorToast(null);
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
       if (mode === "login") {
-        localStorage.setItem("tuk_customer_user", email || "คุณอนันต์ ชัยเจริญ");
+        const result = await signIn("credentials", { email, password, redirect: false });
+        if (result?.error) {
+          setErrorToast(result.error);
+          setIsSubmitting(false);
+          return;
+        }
         setStatusToast("เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับกลับสู่ TukShop");
         setTimeout(() => router.push("/"), 1200);
       } else {
-        localStorage.setItem("tuk_customer_user", `${firstName} ${lastName}`);
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ firstName, lastName, email, phone, password }),
+        });
+        const data = await res.json();
+        if (!data.success) {
+          setErrorToast(data.error || "สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+          setIsSubmitting(false);
+          return;
+        }
+        const result = await signIn("credentials", { email, password, redirect: false });
+        if (result?.error) {
+          setErrorToast(result.error);
+          setIsSubmitting(false);
+          return;
+        }
         setStatusToast("สร้างบัญชีผู้ใช้ใหม่สำเร็จ! ได้รับส่วนลด 10% (โค้ด: WELCOME10)");
         setTimeout(() => router.push("/"), 1500);
       }
-    }, 800);
+    } catch (err) {
+      setErrorToast("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -69,6 +98,21 @@ function CustomerAuthContent() {
         )}
       </AnimatePresence>
 
+      {/* Error Toast */}
+      <AnimatePresence>
+        {errorToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 right-4 z-50 bg-red-600 text-white px-6 py-3 border border-red-800 font-kanit text-xs font-semibold flex items-center gap-2 shadow-xl"
+          >
+            <X className="w-4 h-4 text-white" />
+            <span>{errorToast}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Main 1:1 theStudiofour Auth Card Container */}
       <main className="flex-1 max-w-md w-full mx-auto px-4 pt-32 pb-20 flex flex-col justify-center">
         
@@ -81,10 +125,7 @@ function CustomerAuthContent() {
         <div className="flex items-center justify-center gap-4 mb-6">
           {/* LINE Button */}
           <button
-            onClick={() => {
-              setStatusToast("เชื่อมต่อเข้าสู่ระบบด้วย LINE สำเร็จ");
-              setTimeout(() => router.push("/"), 1000);
-            }}
+            onClick={() => signIn("line", { callbackUrl: "/" })}
             className="w-10 h-10 rounded-full bg-[#00B900] flex items-center justify-center hover:opacity-90 transition-opacity shadow-xs"
             title="เข้าสู่ระบบด้วย LINE"
           >
@@ -95,10 +136,7 @@ function CustomerAuthContent() {
 
           {/* Facebook Button */}
           <button
-            onClick={() => {
-              setStatusToast("เชื่อมต่อเข้าสู่ระบบด้วย Facebook สำเร็จ");
-              setTimeout(() => router.push("/"), 1000);
-            }}
+            onClick={() => signIn("facebook", { callbackUrl: "/" })}
             className="w-10 h-10 rounded-full bg-[#1877F2] flex items-center justify-center hover:opacity-90 transition-opacity shadow-xs"
             title="เข้าสู่ระบบด้วย Facebook"
           >
@@ -109,10 +147,7 @@ function CustomerAuthContent() {
 
           {/* Google Button */}
           <button
-            onClick={() => {
-              setStatusToast("เชื่อมต่อเข้าสู่ระบบด้วย Google สำเร็จ");
-              setTimeout(() => router.push("/"), 1000);
-            }}
+            onClick={() => signIn("google", { callbackUrl: "/" })}
             className="w-10 h-10 rounded-full bg-white border border-neutral-300 flex items-center justify-center hover:bg-neutral-50 transition-colors shadow-xs"
             title="เข้าสู่ระบบด้วย Google"
           >

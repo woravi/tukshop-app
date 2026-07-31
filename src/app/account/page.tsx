@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { User, Award, ShoppingBag, MapPin, LogOut, Check } from "lucide-react";
@@ -8,16 +10,24 @@ import Navbar from "@/components/Navbar";
 import CtaFooter from "@/components/CtaFooter";
 
 export default function AccountProfilePage() {
-  const [userName, setUserName] = useState("คุณอนันต์ ชัยเจริญ");
-  const [email, setEmail] = useState("anan@gmail.com");
-  const [phone, setPhone] = useState("081-234-5678");
-  const [points, setPoints] = useState(350);
-  const [tier, setTier] = useState("JPS PLATINUM");
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("tuk_customer_user");
-    if (storedUser) setUserName(storedUser);
-  }, []);
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
+  const userName = session?.user?.name || "";
+  const email = session?.user?.email || "";
+  const phone = "081-234-5678";
+  const points = 350;
+  const tier = "JPS PLATINUM";
+
+  if (status !== "authenticated") {
+    return <div className="min-h-screen bg-white" />;
+  }
 
   return (
     <div className="min-h-screen bg-white text-black font-prompt">
@@ -55,6 +65,14 @@ export default function AccountProfilePage() {
                   <span className="font-prompt font-black text-xl text-white">{points} คะแนน</span>
                 </div>
               </div>
+
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-semibold text-neutral-300 hover:text-white border border-neutral-700 hover:border-neutral-500 py-2 transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>ออกจากระบบ</span>
+              </button>
             </div>
 
             {/* Quick Actions */}

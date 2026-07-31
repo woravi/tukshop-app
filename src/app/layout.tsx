@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Prompt, Kanit } from "next/font/google";
+import Providers from "@/components/Providers";
 import "./globals.css";
 
 const promptFont = Prompt({
@@ -32,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="th" className={`${promptFont.variable} ${kanitFont.variable}`}>
       <body className="antialiased bg-white text-black selection:bg-black selection:text-white font-kanit">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
