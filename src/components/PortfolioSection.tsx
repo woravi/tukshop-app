@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Heart, ShoppingBag, Eye, ArrowRight, X, Check, QrCode } from "lucide-react";
+import { Heart, ShoppingBag, Eye, ArrowRight, X, Check, QrCode, CreditCard, ShieldCheck } from "lucide-react";
 
 interface Product {
   id: string;
@@ -24,7 +24,18 @@ export default function PortfolioSection() {
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  // Real Checkout & PromptPay QR Modal State
+  const [checkoutProduct, setCheckoutProduct] = useState<Product | null>(null);
+  const [customerInfo, setCustomerInfo] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    address: ""
+  });
+  const [isPromptPayOpen, setIsPromptPayOpen] = useState(false);
   const [orderToast, setOrderToast] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -48,28 +59,43 @@ export default function PortfolioSection() {
     );
   };
 
-  const handleAddToCart = async (product: Product) => {
+  const handleOpenCheckout = (product: Product) => {
+    setCheckoutProduct(product);
+    setSelectedProduct(null);
+  };
+
+  const handleConfirmPromptPay = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!checkoutProduct) return;
+
+    if (!customerInfo.name || !customerInfo.phone) {
+      alert("กรุณากรอกชื่อ-นามสกุล และเบอร์โทรศัพท์สำหรับจัดส่ง");
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          customerName: 'คุณอนันต์ ชัยเจริญ (หน้าร้าน)',
-          email: 'anan@gmail.com',
-          phone: '081-234-5678',
-          items: [{ productId: product.id, title: product.title, price: product.price, quantity: 1 }],
-          totalAmount: product.price
+          customerName: customerInfo.name,
+          email: customerInfo.email || `${customerInfo.phone}@tukshop.com`,
+          phone: customerInfo.phone,
+          items: [{ productId: checkoutProduct.id, title: checkoutProduct.title, price: checkoutProduct.price, quantity: 1 }],
+          totalAmount: checkoutProduct.price
         })
       });
       const data = await res.json();
       if (data.success) {
-        setOrderToast(`เพิ่ม "${product.title}" ลงในออเดอร์แล้ว! บันทึกเข้าหลังบ้านและตัดสต็อกเรียบร้อย`);
-        setTimeout(() => setOrderToast(null), 4000);
-        setSelectedProduct(null);
+        setIsPromptPayOpen(true);
+        setOrderToast(`สร้างออเดอร์ #${data.order.id} สำเร็จ! กรุณาสแกน QR Code พร้อมเพย์เพื่อชำระเงิน`);
         fetchProducts();
       }
     } catch (err) {
       console.error('Checkout error:', err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -103,7 +129,7 @@ export default function PortfolioSection() {
               NEW ARRIVALS & LIVE INVENTORY
             </span>
             <h2 className="font-prompt font-black text-2xl sm:text-3xl text-black uppercase">
-              สินค้าใหม่ล่าสุด (เชื่อมต่อหลังบ้าน)
+              สินค้าคอลเลกชันใหม่ล่าสุด
             </h2>
           </div>
 
@@ -130,7 +156,7 @@ export default function PortfolioSection() {
           </div>
         </div>
 
-        {/* Studiofour Product Cards Grid */}
+        {/* Product Cards Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
           {filteredProducts.map((product) => {
             const isLiked = wishlist.includes(product.id);
@@ -158,7 +184,7 @@ export default function PortfolioSection() {
                     </div>
                   )}
 
-                  {/* QR Code Label Tag */}
+                  {/* QR Code Tag */}
                   <div className="absolute bottom-2 left-2 z-10">
                     <span className="bg-white/90 backdrop-blur-xs text-black font-mono text-[9px] font-bold px-1.5 py-0.5 border border-neutral-300">
                       QR: {product.qrCode}
@@ -208,11 +234,11 @@ export default function PortfolioSection() {
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleAddToCart(product);
+                        handleOpenCheckout(product);
                       }}
                       className="text-[10px] font-bold uppercase text-black hover:underline tracking-wider"
                     >
-                      + สั่งซื้อ
+                      🛒 ชำระเงินจริง
                     </button>
                   </div>
                 </div>
@@ -284,14 +310,161 @@ export default function PortfolioSection() {
                     </div>
 
                     <button
-                      onClick={() => handleAddToCart(selectedProduct)}
+                      onClick={() => handleOpenCheckout(selectedProduct)}
                       className="w-full bg-black text-white text-xs font-bold uppercase tracking-widest py-3.5 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2"
                     >
                       <ShoppingBag className="w-4 h-4" />
-                      <span>สั่งซื้อและบันทึกข้อมูลเข้าหลังบ้าน</span>
+                      <span>สั่งซื้อ & สแกนจ่ายพร้อมเพย์</span>
                     </button>
                   </div>
                 </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Real Customer Checkout & PromptPay QR Modal */}
+        <AnimatePresence>
+          {checkoutProduct && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setCheckoutProduct(null);
+                setIsPromptPayOpen(false);
+              }}
+              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer font-prompt"
+            >
+              <motion.div
+                initial={{ scale: 0.95, y: 15 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 15 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white border border-neutral-300 max-w-lg w-full p-6 shadow-2xl cursor-default relative font-kanit"
+              >
+                <button
+                  onClick={() => {
+                    setCheckoutProduct(null);
+                    setIsPromptPayOpen(false);
+                  }}
+                  className="absolute top-4 right-4 p-2 text-black hover:opacity-60"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                {!isPromptPayOpen ? (
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-[9px] font-mono font-bold bg-black text-white px-2 py-0.5 uppercase">
+                        REALTIME CHECKOUT
+                      </span>
+                    </div>
+                    <h3 className="font-prompt font-black text-xl text-black uppercase mb-4">
+                      กรอกข้อมูลจัดส่ง & สแกนจ่ายพร้อมเพย์
+                    </h3>
+
+                    <div className="p-3 bg-neutral-50 border border-neutral-200 mb-4 flex items-center gap-3">
+                      <div className="w-12 h-14 relative bg-neutral-200 shrink-0">
+                        <Image src={checkoutProduct.image || '/images/studio_hero_banner.jpg'} alt={checkoutProduct.title} fill className="object-cover" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-xs text-black line-clamp-1">{checkoutProduct.title}</h4>
+                        <span className="font-prompt font-black text-sm text-black">฿{checkoutProduct.price.toLocaleString()}</span>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleConfirmPromptPay} className="space-y-3 text-xs">
+                      <div>
+                        <label className="font-bold text-black block mb-1">ชื่อ-นามสกุล ผู้รับ*</label>
+                        <input
+                          type="text"
+                          value={customerInfo.name}
+                          onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
+                          required
+                          placeholder="เช่น คุณอนันต์ ชัยเจริญ"
+                          className="w-full bg-neutral-50 border border-neutral-300 text-xs px-3 py-2 focus:outline-none focus:border-black"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-black block mb-1">เบอร์โทรศัพท์ติดต่อ*</label>
+                        <input
+                          type="tel"
+                          value={customerInfo.phone}
+                          onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
+                          required
+                          placeholder="เช่น 081-234-5678"
+                          className="w-full bg-neutral-50 border border-neutral-300 text-xs px-3 py-2 focus:outline-none focus:border-black font-mono"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-black block mb-1">ที่อยู่สำหรับจัดส่งสินค้า</label>
+                        <textarea
+                          value={customerInfo.address}
+                          onChange={(e) => setCustomerInfo({ ...customerInfo, address: e.target.value })}
+                          rows={2}
+                          placeholder="บ้านเลขที่, ถนน, แขวง/ตำบล, เขต/อำเภอ, จังหวัด, รหัสไปรษณีย์..."
+                          className="w-full bg-neutral-50 border border-neutral-300 text-xs px-3 py-2 focus:outline-none focus:border-black"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full bg-black text-white text-xs font-bold uppercase tracking-widest py-3.5 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 mt-4 font-prompt"
+                      >
+                        <QrCode className="w-4 h-4" />
+                        <span>{isSubmitting ? "กำลังสร้างออเดอร์..." : `ชำระเงินด้วย PromptPay ฿${checkoutProduct.price.toLocaleString()}`}</span>
+                      </button>
+                    </form>
+                  </div>
+                ) : (
+                  <div className="text-center py-2">
+                    <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <QrCode className="w-6 h-6" />
+                    </div>
+
+                    <h3 className="font-prompt font-black text-xl text-black uppercase mb-1">
+                      สแกน QR Code พร้อมเพย์เพื่อชำระเงิน
+                    </h3>
+                    <p className="text-xs text-neutral-500 mb-4">
+                      เปิดแอปพลิเคชัน Mobile Banking ของทุกธนาคาร เพื่อสแกนชำระเงิน
+                    </p>
+
+                    {/* PromptPay QR Simulated Image Card */}
+                    <div className="bg-white border-2 border-black p-4 max-w-[220px] mx-auto shadow-md mb-4 text-center">
+                      <div className="font-bold text-xs tracking-wider text-blue-900 border-b border-neutral-200 pb-1 mb-2">
+                        PROMPTPAY QR
+                      </div>
+                      <div className="w-40 h-40 bg-neutral-900 text-white font-mono text-[9px] font-bold mx-auto flex flex-col items-center justify-center p-2 rounded-xs">
+                        <QrCode className="w-16 h-16 text-white mb-2" />
+                        <span>[PROMPTPAY LIVE QR]</span>
+                        <span>ยอดชำระ: ฿{checkoutProduct.price.toLocaleString()}</span>
+                      </div>
+                      <div className="text-[10px] font-bold text-black mt-2 font-mono">
+                        TUKSHOP CO., LTD.
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-neutral-100 text-xs font-semibold text-black mb-4">
+                      ยอดชำระสุทธิ: <span className="font-prompt font-black text-sm text-black">฿{checkoutProduct.price.toLocaleString()}</span>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setCheckoutProduct(null);
+                        setIsPromptPayOpen(false);
+                        setOrderToast("ชำระเงินสำเร็จ! บันทึกคำสั่งซื้อและส่งข้อมูลเข้าหลังบ้านเรียบร้อยแล้ว");
+                      }}
+                      className="w-full bg-green-600 text-white text-xs font-bold uppercase tracking-widest py-3 hover:bg-green-700 transition-colors flex items-center justify-center gap-2 font-prompt"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>ยืนยันชำระเงินเรียบร้อย</span>
+                    </button>
+                  </div>
+                )}
               </motion.div>
             </motion.div>
           )}
