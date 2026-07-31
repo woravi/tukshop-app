@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    font-size: 18px; /* Base font size increased +5px */
+  }
+
   body {
     background-color: #FFFFFF;
     color: #111111;
@@ -10,6 +14,11 @@
     overflow-x: hidden;
     letter-spacing: 0.01em;
     -webkit-font-smoothing: antialiased;
+    font-size: 1.1rem; /* Scaled up +5px for crystal clear readability */
+  }
+
+  p, span, button, input, textarea, label {
+    font-size: calc(100% + 2px);
   }
 }
 
@@ -77,15 +86,15 @@
     padding: 4mm !important;
     margin: 0 auto !important;
     font-family: monospace !important;
-    font-size: 11px !important;
+    font-size: 13px !important;
     color: black !important;
     background: white !important;
   }
 
   /* 50x30mm QR Code Sticker Tag Setup */
   .qr-label-sticker {
-    width: 50mm !important;
-    height: 30mm !important;
+    width: 52mm !important;
+    height: 34mm !important;
     page-break-after: always;
     border: 1px dashed #ccc !important;
     padding: 2mm !important;
@@ -101,7 +110,7 @@
 
 /* Studiofour Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
   background: #FAFAFA;
