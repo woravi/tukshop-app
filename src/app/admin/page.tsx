@@ -80,8 +80,9 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Print Modals State
+  // Print & Zoom Modals State
   const [printQRProduct, setPrintQRProduct] = useState<Product | null>(null);
+  const [zoomQRProduct, setZoomQRProduct] = useState<Product | null>(null);
   const [labelQuantity, setLabelQuantity] = useState(4);
   const [printOrder, setPrintOrder] = useState<Order | null>(null);
 
@@ -560,21 +561,28 @@ export default function AdminDashboard() {
               {products.map(p => (
                 <div key={p.id} className="bg-white border border-neutral-200 p-5 flex flex-col justify-between hover:border-black transition-colors">
                   <div>
-                    <div className="flex items-start justify-between mb-3 gap-2">
+                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-neutral-100 gap-3">
                       <div>
                         <span className="text-[9px] font-mono font-bold bg-neutral-100 text-neutral-700 px-2 py-0.5 border border-neutral-200 uppercase block w-max mb-1">
                           {p.brand}
                         </span>
-                        <span className="text-[10px] font-mono bg-black text-white font-bold px-1.5 py-0.5 block w-max">
+                        <span className="text-[10px] font-mono bg-black text-white font-bold px-1.5 py-0.5 block w-max mb-1">
                           {p.qrCode}
                         </span>
+                        <button
+                          onClick={() => setZoomQRProduct(p)}
+                          className="text-[9px] text-blue-600 font-bold underline block hover:text-black font-mono"
+                        >
+                          🔍 ขยายสแกนใหญ่
+                        </button>
                       </div>
 
-                      {/* Visual SVG QR Code Thumbnail */}
+                      {/* Prominent High-Contrast Visual QR Code */}
                       <div 
-                        className="w-12 h-12 bg-white border border-neutral-300 p-0.5 shrink-0 shadow-xs cursor-pointer hover:scale-105 transition-transform"
-                        dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(`https://tukshop.ratchavit.com/admin?code=${p.qrCode}`, 44) }}
-                        title={`QR Code URL: https://tukshop.ratchavit.com/admin?code=${p.qrCode}`}
+                        onClick={() => setZoomQRProduct(p)}
+                        className="w-24 h-24 bg-white border-2 border-black p-1 shrink-0 shadow-sm cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
+                        dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(`https://tukshop.ratchavit.com/admin?code=${p.qrCode}`, 90) }}
+                        title="คลิกเพื่อขยายรูป QR Code สำหรับสแกนด้วยมือถือ"
                       />
                     </div>
 
@@ -907,6 +915,66 @@ export default function AdminDashboard() {
         )}
 
       </div>
+
+      {/* HD BIG QR CODE ZOOM MODAL FOR CAMERA SCANNING */}
+      <AnimatePresence>
+        {zoomQRProduct && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setZoomQRProduct(null)}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer font-prompt"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 15 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white border-2 border-black max-w-sm w-full p-6 shadow-2xl cursor-default relative text-center"
+            >
+              <button
+                onClick={() => setZoomQRProduct(null)}
+                className="absolute top-4 right-4 p-2 text-black hover:opacity-60"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="text-[9px] font-mono font-bold bg-black text-white px-2 py-0.5 uppercase">
+                  HD CAMERA SCANNABLE QR CODE
+                </span>
+              </div>
+              
+              <h3 className="font-black text-base text-black uppercase mb-1">
+                {zoomQRProduct.title}
+              </h3>
+              <span className="text-xs font-mono font-bold text-neutral-500 block mb-4">
+                รหัสสินค้า: {zoomQRProduct.qrCode} | แบรนด์: {zoomQRProduct.brand}
+              </span>
+
+              {/* HUGE HIGH-CONTRAST 260px QR CODE DISPLAY */}
+              <div className="bg-white p-3 border-2 border-black max-w-[260px] mx-auto shadow-md mb-4 flex items-center justify-center">
+                <div 
+                  className="w-[240px] h-[240px] flex items-center justify-center"
+                  dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(`https://tukshop.ratchavit.com/admin?code=${zoomQRProduct.qrCode}`, 235) }}
+                />
+              </div>
+
+              <div className="p-3 bg-neutral-100 border border-neutral-300 font-kanit text-xs text-black font-semibold mb-4">
+                📲 ยกกล้องมือถือสแกนรูปนี้เพื่อดึงข้อมูลสินค้าและเช็คสต็อกได้ทันที!
+              </div>
+
+              <button
+                onClick={() => setZoomQRProduct(null)}
+                className="w-full bg-black text-white text-xs font-bold uppercase tracking-widest py-3 hover:bg-neutral-800 transition-colors"
+              >
+                ปิดหน้าต่าง
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 1. PRINT QR CODE / BARCODE STICKER LABEL MODAL */}
       <AnimatePresence>
