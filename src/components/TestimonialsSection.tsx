@@ -1,104 +1,58 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Star, Quote, CheckCircle } from "lucide-react";
+import { Sparkles, ShieldCheck, Heart, Award } from "lucide-react";
 
 export default function TestimonialsSection() {
-  const reviews = [
-    {
-      name: "คุณธนกร เลิศวิเชียร",
-      role: "เจ้าของแบรนด์ Urban Streetwear",
-      store: "TukTuk Apparel",
-      avatar: "👨‍💻",
-      comment: "หลังจากเปลี่ยนมาใช้ TukShop ยอดขายหน้าร้านและออนไลน์เพิ่มขึ้น 300% สต็อกไม่เคยตัดพลาดอีกเลย ดีไซน์ระบบสวยและเร็วมากครับ!",
-      rating: 5,
-      accent: "#CCFF00",
-    },
-    {
-      name: "คุณศิริพร บุญเจริญ",
-      role: "Founder & CEO",
-      store: "Matcha House BKK",
-      avatar: "👩‍💼",
-      comment: "หน้าตา Neo-Brutalism สวยโดดเด่นไม่ซ้ำใคร ลูกค้าและพนักงานชอบมาก คิดเงินไวใน 0.2 วินาที ออกใบเสร็จ QR ได้ทันที คุ้มราคาที่สุด!",
-      rating: 5,
-      accent: "#A855F7",
-    },
-    {
-      name: "คุณภัทรพงศ์ วงศ์สวัสดิ์",
-      role: "Managing Director",
-      store: "Neo Tech Retail 5 สาขา",
-      avatar: "🧑‍เทคโนโลยี",
-      comment: "ระบบ AI Analytics ของ TukShop ช่วยทำนายว่าสินค้าชิ้นไหนจะขาดสต็อกได้อย่างแม่นยำ ทีมซัพพอร์ตช่วยเหลือตลอด 24 ชั่วโมงดีมากครับ",
-      rating: 5,
-      accent: "#FF5722",
-    },
-  ];
-
   return (
-    <section id="testimonials" className="py-28 px-4 sm:px-8 bg-neo-grid relative overflow-hidden">
-      <div className="max-w-7xl mx-auto">
+    <section id="about" className="py-20 px-4 sm:px-8 bg-white border-b border-neutral-200 font-prompt">
+      <div className="max-w-5xl mx-auto text-center">
         
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-black border border-[#CCFF00] rounded-full shadow-[3px_3px_0px_0px_#A855F7] mb-4">
-            <Star className="w-4 h-4 text-[#CCFF00] fill-[#CCFF00]" />
-            <span className="font-prompt text-xs font-bold text-white tracking-widest uppercase">
-              CUSTOMER TESTIMONIALS
-            </span>
+        <span className="text-[10px] font-mono font-bold tracking-widest uppercase bg-black text-white px-3 py-1 inline-block mb-4">
+          ABOUT TUKSHOP
+        </span>
+
+        <h2 className="font-prompt font-black text-3xl sm:text-5xl text-black uppercase tracking-tight mb-6">
+          เกี่ยวกับ TukShop
+        </h2>
+
+        <p className="font-kanit text-neutral-700 text-base sm:text-xl font-light leading-relaxed max-w-3xl mx-auto mb-12">
+          TukShop คือ <strong className="text-black font-semibold">ห้องเสื้อดิจิทัลที่รวมแบรนด์ไอคอนิกเข้าด้วยกัน</strong> ออกแบบมาสำหรับผู้ที่ทันสมัยและใส่ใจเทรนด์แฟชั่น เปลี่ยนการค้นหาแฟชั่นให้กลายเป็นการเดินทางที่เต็มไปด้วยแรงบันดาลใจ
+        </p>
+
+        {/* 3 Pillar Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+          
+          <div className="p-6 bg-neutral-50 border border-neutral-200 hover:border-black transition-colors">
+            <Award className="w-6 h-6 text-black mb-4" />
+            <h3 className="font-bold text-sm text-black mb-2 uppercase">
+              ไอคอนิกแบรนด์คอลเลกชัน
+            </h3>
+            <p className="font-kanit text-xs text-neutral-600 font-light leading-relaxed">
+              รวบรวมแบรนด์ชั้นนำระดับโลก เช่น QUINN, MELISSA, MARITHÉ, REEF, DIESEL, PUMA และ SATUR ไว้ในที่เดียว
+            </p>
           </div>
-          <h2 className="font-prompt font-black text-4xl sm:text-6xl text-white tracking-tight mb-4">
-            เสียงตอบรับจากผู้ใช้งานจริง <br />
-            <span className="text-gradient-lime-purple">ทั่วประเทศไทย</span>
-          </h2>
-        </div>
 
-        {/* Reviews Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {reviews.map((review, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.15 }}
-              className="glass-neo-card p-8 rounded-3xl relative flex flex-col justify-between border-2 border-white/10 hover:border-[#CCFF00] transition-all shadow-[6px_6px_0px_0px_rgba(255,255,255,0.08)] hover:shadow-[6px_6px_0px_0px_#A855F7]"
-            >
-              <div>
-                {/* Rating Stars & Quote Icon */}
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex gap-1 text-[#CCFF00]">
-                    {[...Array(review.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-[#CCFF00]" />
-                    ))}
-                  </div>
-                  <Quote className="w-8 h-8 text-white/20" />
-                </div>
+          <div className="p-6 bg-neutral-50 border border-neutral-200 hover:border-black transition-colors">
+            <Sparkles className="w-6 h-6 text-black mb-4" />
+            <h3 className="font-bold text-sm text-black mb-2 uppercase">
+              ประสบการณ์ช้อปปิ้งยุคใหม่
+            </h3>
+            <p className="font-kanit text-xs text-neutral-600 font-light leading-relaxed">
+              สัมผัสประสบการณ์ช้อปปิ้งดิจิทัลไร้รอยต่อ สะดวก รวดเร็ว พร้อมบริการผ่อนชำระ 0%* ทุกคำสั่งซื้อ
+            </p>
+          </div>
 
-                <p className="font-kanit text-gray-200 text-base font-light leading-relaxed mb-6 italic">
-                  "{review.comment}"
-                </p>
-              </div>
+          <div className="p-6 bg-neutral-50 border border-neutral-200 hover:border-black transition-colors">
+            <ShieldCheck className="w-6 h-6 text-black mb-4" />
+            <h3 className="font-bold text-sm text-black mb-2 uppercase">
+              การันตีสินค้าแท้ 100%
+            </h3>
+            <p className="font-kanit text-xs text-neutral-600 font-light leading-relaxed">
+              จัดจำหน่ายโดย TukShop Group ผู้นำในธุรกิจแฟชั่นและไลฟ์สไตล์ของประเทศไทย
+            </p>
+          </div>
 
-              {/* User Info */}
-              <div className="pt-4 border-t border-white/10 flex items-center gap-4">
-                <div 
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl border-2 border-black shadow-[2px_2px_0px_0px_#0A0A0A]"
-                  style={{ backgroundColor: review.accent }}
-                >
-                  {review.avatar}
-                </div>
-                <div>
-                  <h4 className="font-prompt font-bold text-white text-base flex items-center gap-1.5">
-                    {review.name}
-                    <CheckCircle className="w-4 h-4 text-[#CCFF00] fill-black" />
-                  </h4>
-                  <p className="font-kanit text-xs text-gray-400 font-light">
-                    {review.role} • <strong className="text-[#CCFF00] font-normal">{review.store}</strong>
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
         </div>
 
       </div>

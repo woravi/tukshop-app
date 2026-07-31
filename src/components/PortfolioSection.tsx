@@ -1,107 +1,127 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { ExternalLink, Sparkles, Eye, CheckCircle2, ArrowRight } from "lucide-react";
+import { Heart, ShoppingBag, Eye, ArrowRight, X, Check, QrCode } from "lucide-react";
+
+interface Product {
+  id: string;
+  brand: string;
+  category: string;
+  title: string;
+  price: number;
+  originalPrice?: number;
+  stock: number;
+  badge?: string;
+  qrCode: string;
+  image: string;
+  description: string;
+}
 
 export default function PortfolioSection() {
-  const [activeTab, setActiveTab] = useState("all");
-  const [selectedItem, setSelectedItem] = useState<typeof portfolioItems[0] | null>(null);
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [wishlist, setWishlist] = useState<string[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [orderToast, setOrderToast] = useState<string | null>(null);
 
-  const portfolioItems = [
-    {
-      id: "pos-system",
-      category: "pos",
-      categoryLabel: "POS & หน้าร้าน",
-      title: "TukShop Smart POS v2.5",
-      subtitle: "ระบบคิดเงินความเร็วสูง และบริหารสต็อกหน้าร้าน",
-      image: "/images/tukshop_pos.jpg",
-      tags: ["POS System", "Realtime Inventory", "PromptPay QR"],
-      stats: "0.2s Billing Speed",
-      accent: "#CCFF00",
-      description: "ระบบคิดเงินอัจฉริยะ ออกแบบมาเพื่อหน้าร้านยุคใหม่ ช่วยให้พนักงานคิดเงินได้เร็วขึ้น 3 เท่า รองรับการสแกน QR Payment และพิมพ์ใบเสร็จอัตโนมัติ"
-    },
-    {
-      id: "express-app",
-      category: "mobile",
-      categoryLabel: "Mobile Delivery",
-      title: "TukShop Express Application",
-      subtitle: "แอปจัดส่งสินค้า และติดตามออเดอร์ในมือถือ",
-      image: "/images/tukshop_mobile.jpg",
-      tags: ["iOS & Android", "GPS Tracking", "Rider App"],
-      stats: "15-Min Delivery",
-      accent: "#A855F7",
-      description: "แอปพลิเคชันเดลิเวอรีสำหรับร้านค้าและไรเดอร์ ติดตามพิกัดการจัดส่งแบบเรียลไทม์พร้อมการแจ้งเตือน Push Notifications ถึงมือลูกค้าทันที"
-    },
-    {
-      id: "ai-analytics",
-      category: "analytics",
-      categoryLabel: "AI & Analytics",
-      title: "TukShop AI Analytics Dashboard",
-      subtitle: "ศูนย์บัญชาการข้อมูลและทำนายยอดขายด้วย AI",
-      image: "/images/tukshop_analytics.jpg",
-      tags: ["AI Forecast", "Live Revenue", "Customer Insights"],
-      stats: "99.8% Prediction Accuracy",
-      accent: "#FF5722",
-      description: "แดชบอร์ดแดนสวรรค์ของผู้บริหาร แสดงผลยอดขายแบบ Live Telemetry พร้อมระบบแจ้งเตือนการสต็อกสินค้าและกลยุทธ์ตั้งราคาโดยอัตโนมัติ"
-    },
-    {
-      id: "digital-store",
-      category: "ecommerce",
-      categoryLabel: "E-Commerce",
-      title: "TukShop Neo-Streetwear Store",
-      subtitle: "ร้านค้าออนไลน์สไตล์ Neo-Brutalism พรีเมียม",
-      image: "/images/tukshop_store.jpg",
-      tags: ["Next.js Storefront", "Cyberpunk Vibes", "Fast Checkout"],
-      stats: "4.9★ Customer Rating",
-      accent: "#00F0FF",
-      description: "หน้าร้านค้าออนไลน์ที่สร้างความตื่นตาตื่นใจให้ลูกค้า มอบประสบการณ์สั่งซื้อไร้รอยต่อ รองรับทั้งสินค้า Physical และ Digital Downloads"
-    },
-  ];
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
-  const filteredItems = activeTab === "all" 
-    ? portfolioItems 
-    : portfolioItems.filter(item => item.category === activeTab);
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch('/api/products');
+      const data = await res.json();
+      if (data.success && data.products) {
+        setProducts(data.products);
+      }
+    } catch (err) {
+      console.error('Failed to load products API:', err);
+    }
+  };
+
+  const toggleWishlist = (id: string) => {
+    setWishlist(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleAddToCart = async (product: Product) => {
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: 'คุณอนันต์ ชัยเจริญ (หน้าร้าน)',
+          email: 'anan@gmail.com',
+          phone: '081-234-5678',
+          items: [{ productId: product.id, title: product.title, price: product.price, quantity: 1 }],
+          totalAmount: product.price
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrderToast(`เพิ่ม "${product.title}" ลงในออเดอร์แล้ว! บันทึกเข้าหลังบ้านและตัดสต็อกเรียบร้อย`);
+        setTimeout(() => setOrderToast(null), 4000);
+        setSelectedProduct(null);
+        fetchProducts();
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+    }
+  };
+
+  const filteredProducts = activeCategory === "all" 
+    ? products 
+    : products.filter(p => p.category === activeCategory);
 
   return (
-    <section id="portfolio" className="py-28 px-4 sm:px-8 bg-neo-grid relative overflow-hidden">
-      {/* Glow Orbs */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#A855F7]/10 rounded-full blur-[160px] pointer-events-none" />
-
+    <section id="products" className="py-16 px-4 sm:px-8 bg-white border-b border-neutral-200 font-prompt">
       <div className="max-w-7xl mx-auto">
         
+        {/* Toast Alert */}
+        <AnimatePresence>
+          {orderToast && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="fixed top-4 right-4 z-50 bg-black text-white px-6 py-3 border border-neutral-700 font-kanit text-xs font-semibold flex items-center gap-2 shadow-xl"
+            >
+              <Check className="w-4 h-4 text-green-400" />
+              <span>{orderToast}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-neutral-200 gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-black border border-[#CCFF00] rounded-full shadow-[3px_3px_0px_0px_#A855F7] mb-4">
-              <Sparkles className="w-4 h-4 text-[#CCFF00]" />
-              <span className="font-prompt text-xs font-bold text-white tracking-widest uppercase">
-                PORTFOLIO & SYSTEM SHOWCASE
-              </span>
-            </div>
-            <h2 className="font-prompt font-black text-4xl sm:text-6xl text-white tracking-tight">
-              ตัวอย่างระบบและ <br />
-              <span className="text-gradient-lime-purple">ผลงานจริงจาก TukShop</span>
+            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-neutral-400 block mb-1">
+              NEW ARRIVALS & LIVE INVENTORY
+            </span>
+            <h2 className="font-prompt font-black text-2xl sm:text-3xl text-black uppercase">
+              สินค้าใหม่ล่าสุด (เชื่อมต่อหลังบ้าน)
             </h2>
           </div>
 
-          {/* Filter Tabs */}
-          <div className="flex flex-wrap gap-2 bg-black/60 p-2 rounded-2xl border border-white/10">
+          {/* Category Tabs */}
+          <div className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wider">
             {[
               { id: "all", label: "ทั้งหมด" },
-              { id: "pos", label: "POS หน้าร้าน" },
-              { id: "mobile", label: "Mobile App" },
-              { id: "analytics", label: "AI Analytics" },
-              { id: "ecommerce", label: "E-Commerce" },
-            ].map((tab) => (
+              { id: "women", label: "ผู้หญิง" },
+              { id: "men", label: "ผู้ชาย" },
+              { id: "accessories", label: "เครื่องประดับ & หมวก" },
+            ].map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-xl text-sm font-prompt font-semibold transition-all ${
-                  activeTab === tab.id
-                    ? "bg-[#CCFF00] text-black shadow-[3px_3px_0px_0px_#A855F7]"
-                    : "text-gray-400 hover:text-white hover:bg-white/10"
+                onClick={() => setActiveCategory(tab.id)}
+                className={`px-4 py-2 border transition-all ${
+                  activeCategory === tab.id
+                    ? "bg-black text-white border-black"
+                    : "border-neutral-200 text-neutral-600 hover:border-black hover:text-black"
                 }`}
               >
                 {tab.label}
@@ -110,142 +130,167 @@ export default function PortfolioSection() {
           </div>
         </div>
 
-        {/* Portfolio Showcase Grid */}
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <AnimatePresence>
-            {filteredItems.map((item) => (
-              <motion.div
-                key={item.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4 }}
-                className="glass-neo-card rounded-3xl overflow-hidden border-2 border-white/10 hover:border-[#CCFF00] transition-all group shadow-[8px_8px_0px_0px_rgba(255,255,255,0.08)] hover:shadow-[8px_8px_0px_0px_#A855F7]"
+        {/* Studiofour Product Cards Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+          {filteredProducts.map((product) => {
+            const isLiked = wishlist.includes(product.id);
+            return (
+              <div
+                key={product.id}
+                className="studio-product-card flex flex-col justify-between group relative cursor-pointer"
+                onClick={() => setSelectedProduct(product)}
               >
-                {/* Image Container with Hover Zoom & Color Shift */}
-                <div className="relative aspect-[16/9] overflow-hidden bg-black cursor-pointer" onClick={() => setSelectedItem(item)}>
+                {/* 3:4 Aspect Ratio Product Image */}
+                <div className="relative aspect-studio-portrait bg-neutral-100 overflow-hidden">
                   <Image
-                    src={item.image}
-                    alt={item.title}
+                    src={product.image || '/images/studio_hero_banner.jpg'}
+                    alt={product.title}
                     fill
-                    className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1 filter group-hover:contrast-125 group-hover:brightness-110"
-                  />
-                  
-                  {/* Neon Color Shift Overlay on Hover */}
-                  <div 
-                    className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none mix-blend-overlay"
-                    style={{ backgroundColor: item.accent }}
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
 
-                  {/* Top Floating Badge */}
-                  <div className="absolute top-4 left-4">
-                    <span 
-                      className="text-xs font-prompt font-bold px-3 py-1.5 rounded-xl border border-black shadow-[3px_3px_0px_0px_#0A0A0A]"
-                      style={{ backgroundColor: item.accent, color: "#0A0A0A" }}
-                    >
-                      {item.stats}
+                  {/* Badge */}
+                  {product.badge && (
+                    <div className="absolute top-2 left-2 z-10">
+                      <span className="bg-black text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5">
+                        {product.badge}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* QR Code Label Tag */}
+                  <div className="absolute bottom-2 left-2 z-10">
+                    <span className="bg-white/90 backdrop-blur-xs text-black font-mono text-[9px] font-bold px-1.5 py-0.5 border border-neutral-300">
+                      QR: {product.qrCode}
                     </span>
                   </div>
 
-                  {/* Quick View Hover Button */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 backdrop-blur-xs">
-                    <button className="glow-button-lime px-6 py-3 rounded-2xl font-prompt font-bold flex items-center gap-2">
-                      <Eye className="w-5 h-5 text-black" />
-                      <span>ดูรายละเอียดระบบ</span>
-                    </button>
+                  {/* Wishlist Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleWishlist(product.id);
+                    }}
+                    className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-white/80 backdrop-blur-xs flex items-center justify-center text-black hover:bg-black hover:text-white transition-colors"
+                  >
+                    <Heart className={`w-4 h-4 ${isLiked ? "fill-red-600 text-red-600" : ""}`} />
+                  </button>
+
+                  {/* Hover Quick View */}
+                  <div className="absolute inset-x-0 bottom-0 p-3 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <span className="text-white text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                      <Eye className="w-3.5 h-3.5" />
+                      เปิดดูรายละเอียด
+                    </span>
                   </div>
                 </div>
 
-                {/* Card Content Info */}
-                <div className="p-6 sm:p-8">
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {item.tags.map((tag, tIdx) => (
-                      <span key={tIdx} className="text-[11px] font-mono bg-white/5 text-gray-300 border border-white/10 px-2.5 py-1 rounded-md">
-                        #{tag}
+                {/* Product Detail Info */}
+                <div className="p-4 font-kanit flex flex-col justify-between flex-1">
+                  <div>
+                    <span className="text-[10px] font-mono font-bold tracking-widest text-neutral-500 uppercase block mb-1">
+                      {product.brand}
+                    </span>
+                    <h3 className="text-xs font-semibold text-black leading-snug line-clamp-2 mb-2 group-hover:underline">
+                      {product.title}
+                    </h3>
+                  </div>
+
+                  <div className="flex items-baseline justify-between pt-2 border-t border-neutral-100">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xs font-bold text-black font-prompt">
+                        ฿{product.price.toLocaleString()}
                       </span>
-                    ))}
-                  </div>
-
-                  <h3 className="font-prompt font-bold text-2xl text-white mb-2 group-hover:text-[#CCFF00] transition-colors">
-                    {item.title}
-                  </h3>
-                  <p className="font-kanit text-gray-300 text-sm font-light mb-6">
-                    {item.subtitle}
-                  </p>
-
-                  <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                    <span className="text-xs font-mono text-gray-400">STATUS: PRODUCTION READY</span>
+                      <span className="text-[9px] text-neutral-500 font-mono">
+                        (คลัง: {product.stock})
+                      </span>
+                    </div>
                     <button 
-                      onClick={() => setSelectedItem(item)}
-                      className="text-sm font-prompt font-bold text-[#CCFF00] hover:underline flex items-center gap-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(product);
+                      }}
+                      className="text-[10px] font-bold uppercase text-black hover:underline tracking-wider"
                     >
-                      <span>เปิดดูแบบขยาย</span>
-                      <ArrowRight className="w-4 h-4" />
+                      + สั่งซื้อ
                     </button>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
+              </div>
+            );
+          })}
+        </div>
 
-        {/* Modal Overlay for Item Details */}
+        {/* Product Quick View Modal */}
         <AnimatePresence>
-          {selectedItem && (
+          {selectedProduct && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setSelectedItem(null)}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md cursor-pointer"
+              onClick={() => setSelectedProduct(null)}
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
             >
               <motion.div
-                initial={{ scale: 0.9, y: 20 }}
+                initial={{ scale: 0.95, y: 15 }}
                 animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
+                exit={{ scale: 0.95, y: 15 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-[#0A0A0A] border-4 border-[#CCFF00] rounded-3xl max-w-4xl w-full p-6 sm:p-8 shadow-[12px_12px_0px_0px_#A855F7] overflow-hidden cursor-default relative"
+                className="bg-white border border-neutral-300 max-w-2xl w-full p-6 shadow-2xl cursor-default relative font-prompt"
               >
-                <div className="relative aspect-[16/9] rounded-2xl overflow-hidden mb-6 border-2 border-white/20">
-                  <Image
-                    src={selectedItem.image}
-                    alt={selectedItem.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+                <button
+                  onClick={() => setSelectedProduct(null)}
+                  className="absolute top-4 right-4 p-2 text-black hover:opacity-60"
+                >
+                  <X className="w-5 h-5" />
+                </button>
 
-                <div className="flex flex-wrap gap-2 mb-3">
-                  <span className="bg-[#CCFF00] text-black font-prompt text-xs font-bold px-3 py-1 rounded-full">
-                    {selectedItem.categoryLabel}
-                  </span>
-                  <span className="bg-[#A855F7] text-white font-prompt text-xs font-bold px-3 py-1 rounded-full">
-                    {selectedItem.stats}
-                  </span>
-                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="relative aspect-studio-portrait bg-neutral-100 overflow-hidden border border-neutral-200">
+                    <Image
+                      src={selectedProduct.image || '/images/studio_hero_banner.jpg'}
+                      alt={selectedProduct.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
 
-                <h3 className="font-prompt font-black text-3xl text-white mb-2">
-                  {selectedItem.title}
-                </h3>
-                <p className="font-kanit text-gray-300 text-base font-light mb-6">
-                  {selectedItem.description}
-                </p>
+                  <div className="flex flex-col justify-between font-kanit">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[10px] font-mono font-bold text-neutral-500 uppercase tracking-widest block">
+                          {selectedProduct.brand}
+                        </span>
+                        <span className="text-[9px] font-mono bg-black text-white font-bold px-1.5 py-0.5">
+                          QR: {selectedProduct.qrCode}
+                        </span>
+                      </div>
 
-                <div className="flex justify-end gap-4">
-                  <button
-                    onClick={() => setSelectedItem(null)}
-                    className="px-6 py-2.5 rounded-xl border-2 border-white/20 text-white font-prompt font-semibold hover:bg-white/10"
-                  >
-                    ปิดหน้าต่าง
-                  </button>
-                  <a
-                    href="#cta"
-                    onClick={() => setSelectedItem(null)}
-                    className="glow-button-lime px-6 py-2.5 rounded-xl font-prompt font-bold"
-                  >
-                    ทดลองใช้งานระบบนี้
-                  </a>
+                      <h3 className="font-prompt font-bold text-lg text-black mb-2 leading-snug">
+                        {selectedProduct.title}
+                      </h3>
+                      <div className="text-lg font-bold text-black font-prompt mb-3">
+                        ฿{selectedProduct.price.toLocaleString()}
+                      </div>
+
+                      <p className="text-xs text-neutral-600 font-light leading-relaxed mb-4">
+                        {selectedProduct.description}
+                      </p>
+
+                      <div className="mb-4 text-xs font-mono">
+                        <span className="text-neutral-500">สถานะคลังสินค้าคงเหลือ: </span>
+                        <span className="font-bold text-black">{selectedProduct.stock} ชิ้น</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => handleAddToCart(selectedProduct)}
+                      className="w-full bg-black text-white text-xs font-bold uppercase tracking-widest py-3.5 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <ShoppingBag className="w-4 h-4" />
+                      <span>สั่งซื้อและบันทึกข้อมูลเข้าหลังบ้าน</span>
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             </motion.div>

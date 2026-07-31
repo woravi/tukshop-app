@@ -9,29 +9,29 @@ import CtaFooter from "@/components/CtaFooter";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#0A0A0A] text-white selection:bg-[#CCFF00] selection:text-[#0A0A0A] overflow-x-hidden">
-      {/* Floating Neo Navbar */}
+    <main className="min-h-screen bg-white text-black overflow-x-hidden selection:bg-black selection:text-white">
+      {/* Studiofour Style Luxury Header & Nav */}
       <Navbar />
 
-      {/* Hero Section with Giant Typography & Text Reveal */}
+      {/* Hero Boutique Section */}
       <HeroSection />
 
-      {/* Realtime Stats & Neo Ticker */}
+      {/* Brand Partner Ticker & Realtime Stats */}
       <StatsTicker />
 
-      {/* Features Section with Glassmorphism Cards & Staggered Motion */}
+      {/* Digital Features Collection */}
       <FeaturesSection />
 
-      {/* Portfolio Showcase Section with Hover Zoom Effects */}
+      {/* System Showcase & Product Grid */}
       <PortfolioSection />
 
-      {/* Pricing Section with Neo Cards & Confetti */}
+      {/* Transparent Minimalist Pricing */}
       <PricingSection />
 
-      {/* Testimonials & Customer Reviews */}
+      {/* Editorial Customer Testimonials */}
       <TestimonialsSection />
 
-      {/* Final Conversion CTA & Footnote */}
+      {/* Studiofour Final CTA & Footer */}
       <CtaFooter />
     </main>
   );

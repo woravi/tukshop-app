@@ -1,0 +1,175 @@
+{
+  "users": [
+    {
+      "id": "u-001",
+      "name": "คุณสมศักดิ์ (Admin)",
+      "role": "ADMIN",
+      "email": "admin@tukshop.com"
+    },
+    {
+      "id": "u-002",
+      "name": "คุณวิภาดา (Manager)",
+      "role": "MANAGER",
+      "email": "manager@tukshop.com"
+    },
+    {
+      "id": "u-003",
+      "name": "คุณณัฐพล (Staff)",
+      "role": "STAFF",
+      "email": "staff@tukshop.com"
+    }
+  ],
+  "products": [
+    {
+      "id": "prod-001",
+      "brand": "MELISSA",
+      "category": "women",
+      "title": "NEW🎁 [Not For Sale] Melissa Pack & Go (Free Gift)",
+      "price": 0,
+      "originalPrice": 1290,
+      "stock": 45,
+      "badge": "GWP 100% OFF",
+      "qrCode": "TUK-MEL-001",
+      "image": "/images/studio_hero_banner.jpg",
+      "description": "กระเป๋าเดินทางรุ่นลิมิเต็ด Melissa Pack & Go ของขวัญพิเศษเมื่อช้อปครบตามเงื่อนไข"
+    },
+    {
+      "id": "prod-002",
+      "brand": "SATUR",
+      "category": "men",
+      "title": "NEW [RIIZE's Pick] (M) Loren Linen Cardigan Black",
+      "price": 3590,
+      "stock": 20,
+      "badge": "RIIZE'S PICK",
+      "qrCode": "TUK-SAT-002",
+      "image": "/images/fashion_jacket.jpg",
+      "description": "เสื้อคาร์ดิแกนผ้าลินินทรงลูส สวมสบาย ดีไซน์พรีเมียมจาก SATUR คอลเลกชันใหม่ล่าสุด"
+    },
+    {
+      "id": "prod-003",
+      "brand": "SATUR",
+      "category": "accessories",
+      "title": "NEW (U) Contrast Dyed Ball Cap Red",
+      "price": 1590,
+      "stock": 35,
+      "badge": "NEW ARRIVAL",
+      "qrCode": "TUK-SAT-003",
+      "image": "/images/studio_hero_banner.jpg",
+      "description": "หมวกแก๊ปปักลายโลโก้ ทรงสวย สีฟอก Contrast Dyed เท่ไม่ซ้ำใคร"
+    },
+    {
+      "id": "prod-004",
+      "brand": "QUINN",
+      "category": "women",
+      "title": "NEW เสื้อยืดแขนสั้นปักลายคอลเลกชัน Quinn Fall",
+      "price": 2290,
+      "stock": 18,
+      "badge": "HOT ITEM",
+      "qrCode": "TUK-QUI-004",
+      "image": "/images/fashion_jacket.jpg",
+      "description": "เสื้อยืดแขนสั้นเนื้อผ้าคอตตอน 100% ปักลายเนี๊ยบ ทรงสวยเข้ารูป"
+    },
+    {
+      "id": "prod-005",
+      "brand": "QUINN",
+      "category": "women",
+      "title": "NEW แจ็คเก็ตฮู้ดดี้แต่งซิปคู่ ดีไซน์สปอร์ตชิค",
+      "price": 4990,
+      "stock": 12,
+      "badge": "LIMITED",
+      "qrCode": "TUK-QUI-005",
+      "image": "/images/fashion_jacket.jpg",
+      "description": "แจ็คเก็ตฮู้ดดี้แต่งซิปคู่ เนื้อผ้านุ่ม อบอุ่น แมตช์ง่ายกับทุกสไตล์"
+    },
+    {
+      "id": "prod-006",
+      "brand": "QUINN",
+      "category": "women",
+      "title": "NEW กางเกงเดนิมขายาวทรงขากว้าง สีฟอกทูโทน",
+      "price": 3290,
+      "stock": 25,
+      "badge": "MUST HAVE",
+      "qrCode": "TUK-QUI-006",
+      "image": "/images/studio_hero_banner.jpg",
+      "description": "กางเกงยีนส์เอวสูงทรงขากว้าง ช่วยให้ช่วงขาดูเรียวยาว เนื้อผ้าเดนิมพรีเมียม"
+    }
+  ],
+  "stockLogs": [
+    {
+      "id": "log-001",
+      "productId": "prod-005",
+      "productTitle": "NEW แจ็คเก็ตฮู้ดดี้แต่งซิปคู่ ดีไซน์สปอร์ตชิค",
+      "qrCode": "TUK-QUI-005",
+      "type": "IN",
+      "quantity": 15,
+      "performedBy": "คุณวิภาดา (Manager)",
+      "date": "2026-07-31 08:30:00",
+      "note": "รับสินค้าเข้าคลังสาขาใหญ่"
+    },
+    {
+      "id": "log-002",
+      "productId": "prod-002",
+      "productTitle": "NEW [RIIZE's Pick] (M) Loren Linen Cardigan Black",
+      "qrCode": "TUK-SAT-002",
+      "type": "OUT",
+      "quantity": 2,
+      "performedBy": "ระบบ POS (ขายหน้าร้าน)",
+      "date": "2026-07-31 09:10:00",
+      "note": "ขายออกผ่าน QR Billing #ORD-1001"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ORD-1001",
+      "customerName": "คุณอนันต์ ชัยเจริญ",
+      "email": "anan@gmail.com",
+      "phone": "081-234-5678",
+      "items": [
+        {
+          "productId": "prod-002",
+          "title": "NEW [RIIZE's Pick] (M) Loren Linen Cardigan Black",
+          "price": 3590,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 3590,
+      "status": "PAID",
+      "date": "2026-07-31 09:10:00"
+    },
+    {
+      "id": "ORD-1002",
+      "customerName": "คุณกัลยา สมบูรณ์",
+      "email": "kanlaya@hotmail.com",
+      "phone": "089-876-5432",
+      "items": [
+        {
+          "productId": "prod-005",
+          "title": "NEW แจ็คเก็ตฮู้ดดี้แต่งซิปคู่ ดีไซน์สปอร์ตชิค",
+          "price": 4990,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 4990,
+      "status": "SHIPPED",
+      "date": "2026-07-31 09:25:00"
+    }
+  ],
+  "members": [
+    {
+      "id": "mem-001",
+      "name": "คุณอนันต์ ชัยเจริญ",
+      "email": "anan@gmail.com",
+      "phone": "081-234-5678",
+      "jpsPoints": 350,
+      "joinedDate": "2026-07-15"
+    },
+    {
+      "id": "mem-002",
+      "name": "คุณกัลยา สมบูรณ์",
+      "email": "kanlaya@hotmail.com",
+      "phone": "089-876-5432",
+      "jpsPoints": 490,
+      "joinedDate": "2026-07-20"
+    }
+  ]
+}

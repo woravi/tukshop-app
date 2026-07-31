@@ -17,9 +17,9 @@ const kanitFont = Kanit({
 });
 
 export const metadata: Metadata = {
-  title: "TukShop - แพลตฟอร์มการค้าและ POS ยุคใหม่สไตล์ Neo-Brutalism",
-  description: "ขับเคลื่อนธุรกิจและร้านค้าของคุณสู่ยุคใหม่ด้วย TukShop ระบบ POS, E-Commerce และ AI Analytics ที่เร็ว แรง จัดจ้าน ดีไซน์ระดับโลก",
-  keywords: ["TukShop", "POS", "Neo Brutalism", "E-Commerce", "Next.js Landing Page", "ระบบจัดการร้านค้า"],
+  title: "TukShop | Digital Boutique & Commerce OS",
+  description: "TukShop - แพลตฟอร์มการค้าและระบบ POS ยุคใหม่ ผสมผสานความหรูหราแบบ Digital Boutique มอบประสบการณ์ช้อปปิ้งและจัดการร้านค้าไร้รอยต่อ",
+  keywords: ["TukShop", "Fashion POS", "Digital Boutique", "E-Commerce OS", "ระบบ POS ร้านค้า"],
 };
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="th" className={`${promptFont.variable} ${kanitFont.variable}`}>
-      <body className="antialiased bg-[#0A0A0A] text-white selection:bg-[#CCFF00] selection:text-[#0A0A0A]">
+      <body className="antialiased bg-white text-black selection:bg-black selection:text-white font-kanit">
         {children}
       </body>
     </html>

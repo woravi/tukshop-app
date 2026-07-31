@@ -4,120 +4,108 @@
 
 @layer base {
   body {
-    background-color: #0A0A0A;
-    color: #F5F5F5;
-    font-family: var(--font-kanit), sans-serif;
+    background-color: #FFFFFF;
+    color: #111111;
+    font-family: var(--font-prompt), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     overflow-x: hidden;
-    selection-background-color: #CCFF00;
-    selection-color: #0A0A0A;
+    letter-spacing: 0.01em;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
 ::selection {
-  background: #CCFF00;
-  color: #0A0A0A;
-}
-
-/* Custom Grid Pattern Background */
-.bg-neo-grid {
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
-.bg-dot-pattern {
-  background-image: radial-gradient(rgba(204, 255, 0, 0.15) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-/* Neo-Brutalist Border Utilities */
-.neo-box-lime {
-  background-color: #0A0A0A;
-  border: 2px solid #CCFF00;
-  box-shadow: 5px 5px 0px 0px #CCFF00;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.neo-box-purple {
-  background-color: #0A0A0A;
-  border: 2px solid #A855F7;
-  box-shadow: 5px 5px 0px 0px #A855F7;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.neo-box-orange {
-  background-color: #0A0A0A;
-  border: 2px solid #FF5722;
-  box-shadow: 5px 5px 0px 0px #FF5722;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.neo-box-white {
-  background-color: #0A0A0A;
-  border: 2px solid #FFFFFF;
-  box-shadow: 5px 5px 0px 0px #FFFFFF;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Glassmorphism Cards */
-.glass-neo-card {
-  background: rgba(18, 18, 20, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-}
-
-/* Glowing Neon Aura Effect */
-.glow-button-lime {
-  position: relative;
-  background-color: #CCFF00;
-  color: #0A0A0A;
-  font-weight: 700;
-  border: 2px solid #CCFF00;
-  box-shadow: 0 0 15px rgba(204, 255, 0, 0.5), 4px 4px 0px 0px #0A0A0A;
-  transition: all 0.2s ease-in-out;
-}
-
-.glow-button-lime:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 0 0 35px rgba(204, 255, 0, 0.95), 7px 7px 0px 0px #A855F7;
-}
-
-.glow-button-purple {
-  position: relative;
-  background-color: #A855F7;
+  background: #000000;
   color: #FFFFFF;
-  font-weight: 700;
-  border: 2px solid #A855F7;
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.5), 4px 4px 0px 0px #0A0A0A;
-  transition: all 0.2s ease-in-out;
 }
 
-.glow-button-purple:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 0 0 35px rgba(168, 85, 247, 0.95), 7px 7px 0px 0px #CCFF00;
+/* Studiofour Clean Card Utilities */
+.studio-product-card {
+  background: #FFFFFF;
+  border: 1px solid #EFEFEF;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Gradient Text animation */
-.text-gradient-lime-purple {
-  background: linear-gradient(135deg, #CCFF00 0%, #A855F7 50%, #FF5722 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.studio-product-card:hover {
+  border-color: #000000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
 
-/* Smooth Scrollbar */
+/* Studiofour Aspect Ratios */
+.aspect-studio-portrait {
+  aspect-ratio: 3 / 4;
+}
+
+/* Studiofour Dropdown Mega Menu */
+.megamenu-dropdown {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: all 0.25s ease-in-out;
+}
+
+.group:hover .megamenu-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Print Styles for QR Labels and 80mm Receipts */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  /* Printable Area Container */
+  .printable-area, .printable-area * {
+    visibility: visible !important;
+  }
+
+  .printable-area {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* 80mm Thermal Receipt Print Setup */
+  .thermal-receipt-80mm {
+    width: 80mm !important;
+    max-width: 80mm !important;
+    padding: 4mm !important;
+    margin: 0 auto !important;
+    font-family: monospace !important;
+    font-size: 11px !important;
+    color: black !important;
+    background: white !important;
+  }
+
+  /* 50x30mm QR Code Sticker Tag Setup */
+  .qr-label-sticker {
+    width: 50mm !important;
+    height: 30mm !important;
+    page-break-after: always;
+    border: 1px dashed #ccc !important;
+    padding: 2mm !important;
+    margin: 2mm auto !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    background: white !important;
+  }
+}
+
+/* Studiofour Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #0A0A0A;
+  background: #FAFAFA;
 }
 ::-webkit-scrollbar-thumb {
-  background: #262626;
-  border: 2px solid #CCFF00;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #CCFF00;
+  background: #000000;
 }

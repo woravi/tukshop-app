@@ -1,92 +1,58 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Zap, Store, CreditCard, ShieldAlert, Award, ArrowUpRight } from "lucide-react";
 
 export default function StatsTicker() {
-  const stats = [
-    { label: "ร้านค้าที่ไว้วางใจ", value: "12,500+", icon: Store, color: "#CCFF00" },
-    { label: "มูลค่าการซื้อขายปีนี้", value: "฿1.2 พันล้าน", icon: CreditCard, color: "#A855F7" },
-    { label: "เวลาประมวลผลต่อบิล", value: "< 0.2 วินาที", icon: Zap, color: "#FF5722" },
-    { label: "อัตราความเสถียรรอบปี", value: "99.99%", icon: Award, color: "#00F0FF" },
+  const brands = [
+    { name: "QUINN", cat: "CLOTHING & ACCESSORIES", href: "#products" },
+    { name: "LNRD Signature", cat: "LUXURY ESSENTIALS", href: "#products" },
+    { name: "MARITHÉ", cat: "FRANÇOIS GIRBAUD", href: "#products" },
+    { name: "MELISSA", cat: "JELLY SHOES & BAGS", href: "#products" },
+    { name: "IPANEMA", cat: "FLIP FLOPS", href: "#products" },
+    { name: "REEF", cat: "SURF & FOOTWEAR", href: "#products" },
+    { name: "HOLSTER", cat: "AUSTRALIAN FOOTWEAR", href: "#products" },
+    { name: "DIESEL", cat: "DENIM & APPAREL", href: "#products" },
+    { name: "PUMA", cat: "SPORTSTYLE", href: "#products" },
+    { name: "SATUR [SOON]", cat: "K-FASHION PREVIEW", href: "#products" },
   ];
 
   return (
-    <section className="py-10 bg-black border-y-4 border-[#CCFF00] overflow-hidden relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 mb-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-[#0A0A0A] border-2 border-white/10 p-5 rounded-2xl relative overflow-hidden group hover:border-[#CCFF00] transition-colors shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[4px_4px_0px_0px_#CCFF00]"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center border border-black font-bold"
-                    style={{ backgroundColor: item.color, color: "#0A0A0A" }}
-                  >
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">
-                    Realtime Metrics
-                  </span>
-                </div>
-                <div className="font-prompt font-black text-3xl sm:text-4xl text-white tracking-tight mb-1">
-                  {item.value}
-                </div>
-                <div className="font-kanit text-xs text-gray-400 font-light">
-                  {item.label}
-                </div>
-              </motion.div>
-            );
-          })}
+    <section id="brands" className="py-16 px-4 sm:px-8 bg-neutral-50 border-b border-neutral-200 font-prompt">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Section Header */}
+        <div className="text-center max-w-xl mx-auto mb-10">
+          <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-neutral-400 block mb-1">
+            OUR ICONIC BRANDS
+          </span>
+          <h2 className="font-prompt font-black text-2xl sm:text-3xl text-black uppercase">
+            แบรนด์ไอคอนิกชั้นนำ
+          </h2>
+          <p className="font-kanit text-xs text-neutral-500 font-light mt-1">
+            คัดสรรแบรนด์แฟชั่นระดับโลกเพื่อสไตล์ที่เป็นคุณ
+          </p>
         </div>
-      </div>
 
-      {/* Neo-Brutalist Endless Ticker Marquee */}
-      <div className="bg-[#CCFF00] text-black font-prompt font-black text-xl py-3 border-t-2 border-b-2 border-black tracking-wider uppercase whitespace-nowrap overflow-hidden flex select-none">
-        <motion.div
-          animate={{ x: [0, -1000] }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="flex items-center gap-12 shrink-0"
-        >
-          <span>🚀 TUKSHOP NEO COMMERCE PLATFORM</span>
-          <span>✦</span>
-          <span>⚡ HIGHEST SPEED POS IN THAILAND</span>
-          <span>✦</span>
-          <span>🔥 AI POWERED SALES COPILOT</span>
-          <span>✦</span>
-          <span>💎 ZERO SETUP FEES & EASY MIGRATION</span>
-          <span>✦</span>
-          <span>🚀 TUKSHOP NEO COMMERCE PLATFORM</span>
-          <span>✦</span>
-          <span>⚡ HIGHEST SPEED POS IN THAILAND</span>
-          <span>✦</span>
-        </motion.div>
-        <motion.div
-          animate={{ x: [0, -1000] }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="flex items-center gap-12 shrink-0"
-        >
-          <span>🚀 TUKSHOP NEO COMMERCE PLATFORM</span>
-          <span>✦</span>
-          <span>⚡ HIGHEST SPEED POS IN THAILAND</span>
-          <span>✦</span>
-          <span>🔥 AI POWERED SALES COPILOT</span>
-          <span>✦</span>
-          <span>💎 ZERO SETUP FEES & EASY MIGRATION</span>
-          <span>✦</span>
-          <span>🚀 TUKSHOP NEO COMMERCE PLATFORM</span>
-          <span>✦</span>
-          <span>⚡ HIGHEST SPEED POS IN THAILAND</span>
-          <span>✦</span>
-        </motion.div>
+        {/* Brand Grid Boxes - Studiofour Exact Brand Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+          {brands.map((brand, idx) => (
+            <a
+              key={idx}
+              href={brand.href}
+              className="bg-white border border-neutral-200 p-6 flex flex-col justify-between items-center text-center hover:border-black hover:bg-black hover:text-white transition-all duration-300 group shadow-2xs h-32"
+            >
+              <div className="flex-1 flex items-center justify-center">
+                <span className="font-prompt font-black text-lg sm:text-xl tracking-tight uppercase group-hover:scale-105 transition-transform">
+                  {brand.name}
+                </span>
+              </div>
+              <span className="text-[9px] font-mono tracking-widest text-neutral-400 group-hover:text-neutral-300 uppercase">
+                {brand.cat}
+              </span>
+            </a>
+          ))}
+        </div>
+
       </div>
     </section>
   );
