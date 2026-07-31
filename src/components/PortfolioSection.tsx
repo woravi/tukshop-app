@@ -465,11 +465,11 @@ export default function PortfolioSection() {
 
                     <div className="p-3 bg-neutral-50 border border-neutral-200 mb-4 flex items-center gap-3">
                       <div className="w-12 h-14 relative bg-neutral-200 shrink-0">
-                        <Image src={checkoutProduct.image || '/images/studio_hero_banner.jpg'} alt={checkoutProduct.title} fill className="object-cover" />
+                        <Image src={checkoutProduct?.image || '/images/studio_hero_banner.jpg'} alt={checkoutProduct?.title || 'Product'} fill className="object-cover" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-xs text-black line-clamp-1">{checkoutProduct.title}</h4>
-                        <span className="font-prompt font-black text-sm text-black">฿{checkoutProduct.price.toLocaleString()}</span>
+                        <h4 className="font-bold text-xs text-black line-clamp-1">{checkoutProduct?.title}</h4>
+                        <span className="font-prompt font-black text-sm text-black">฿{(checkoutProduct?.price || 0).toLocaleString()}</span>
                       </div>
                     </div>
 
@@ -515,7 +515,7 @@ export default function PortfolioSection() {
                         className="w-full bg-black text-white text-xs font-bold uppercase tracking-widest py-3.5 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 mt-4 font-prompt"
                       >
                         <QrCode className="w-4 h-4" />
-                        <span>{isSubmitting ? "กำลังสร้างออเดอร์..." : `ชำระเงินด้วย PromptPay ฿${checkoutProduct.price.toLocaleString()}`}</span>
+                        <span>{isSubmitting ? "กำลังสร้างออเดอร์..." : `ชำระเงินด้วย PromptPay ฿${(checkoutProduct?.price || 0).toLocaleString()}`}</span>
                       </button>
                     </form>
                   </div>
@@ -541,7 +541,7 @@ export default function PortfolioSection() {
                       
                       <div 
                         className="w-44 h-44 mx-auto border border-neutral-300 p-1 flex items-center justify-center bg-white"
-                        dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(`PROMPTPAY-0105569000123-AMOUNT-${checkoutProduct.price}`, 170) }}
+                        dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(`PROMPTPAY-0105569000123-AMOUNT-${checkoutProduct?.price || 0}`, 170) }}
                       />
 
                       <div className="text-[10px] font-bold text-black mt-2 font-mono uppercase">
@@ -550,7 +550,7 @@ export default function PortfolioSection() {
                     </div>
 
                     <div className="p-3 bg-neutral-100 text-xs font-semibold text-black mb-4">
-                      ยอดชำระสุทธิ: <span className="font-prompt font-black text-sm text-black">฿{checkoutProduct.price.toLocaleString()}</span>
+                      ยอดชำระสุทธิ: <span className="font-prompt font-black text-sm text-black">฿{(checkoutProduct?.price || 0).toLocaleString()}</span>
                     </div>
 
                     <button
