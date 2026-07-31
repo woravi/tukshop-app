@@ -520,13 +520,22 @@ export default function AdminDashboard() {
               {products.map(p => (
                 <div key={p.id} className="bg-white border border-neutral-200 p-5 flex flex-col justify-between hover:border-black transition-colors">
                   <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[9px] font-mono font-bold bg-neutral-100 text-neutral-700 px-2 py-0.5 border border-neutral-200 uppercase">
-                        {p.brand}
-                      </span>
-                      <span className="text-[10px] font-mono bg-black text-white font-bold px-2 py-0.5">
-                        QR: {p.qrCode}
-                      </span>
+                    <div className="flex items-start justify-between mb-3 gap-2">
+                      <div>
+                        <span className="text-[9px] font-mono font-bold bg-neutral-100 text-neutral-700 px-2 py-0.5 border border-neutral-200 uppercase block w-max mb-1">
+                          {p.brand}
+                        </span>
+                        <span className="text-[10px] font-mono bg-black text-white font-bold px-1.5 py-0.5 block w-max">
+                          {p.qrCode}
+                        </span>
+                      </div>
+
+                      {/* Visual SVG QR Code Thumbnail */}
+                      <div 
+                        className="w-12 h-12 bg-white border border-neutral-300 p-0.5 shrink-0 shadow-xs"
+                        dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(p.qrCode, 44) }}
+                        title={`QR Code: ${p.qrCode}`}
+                      />
                     </div>
 
                     <h3 className="font-bold text-sm text-black mb-2 leading-snug">{p.title}</h3>
@@ -641,9 +650,21 @@ export default function AdminDashboard() {
                 
                 {/* Product Data Card */}
                 <div className="bg-white p-6 border border-neutral-200 font-kanit">
-                  <span className="text-[10px] font-mono font-bold bg-black text-white px-2 py-0.5 uppercase mb-3 inline-block">
-                    QR: {scannedProduct.qrCode}
-                  </span>
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-neutral-100">
+                    <div>
+                      <span className="text-[10px] font-mono font-bold bg-black text-white px-2 py-0.5 uppercase block w-max mb-1">
+                        QR: {scannedProduct.qrCode}
+                      </span>
+                      <span className="text-xs font-bold text-neutral-500">{scannedProduct.brand}</span>
+                    </div>
+
+                    {/* Scanned QR Code SVG Display */}
+                    <div 
+                      className="w-16 h-16 bg-white border border-neutral-300 p-1 shadow-xs"
+                      dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(scannedProduct.qrCode, 58) }}
+                    />
+                  </div>
+
                   <h3 className="font-prompt font-bold text-lg text-black mb-2">{scannedProduct.title}</h3>
                   <p className="text-xs text-neutral-500 font-light mb-4">{scannedProduct.description}</p>
 
