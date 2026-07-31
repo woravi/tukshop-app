@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Heart, ShoppingBag, Eye, ArrowRight, X, Check, QrCode, CreditCard, ShieldCheck } from "lucide-react";
@@ -21,6 +22,7 @@ interface Product {
 }
 
 export default function PortfolioSection() {
+  const router = useRouter();
   const [activeCategory, setActiveCategory] = useState("all");
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -165,7 +167,7 @@ export default function PortfolioSection() {
               <div
                 key={product.id}
                 className="studio-product-card flex flex-col justify-between group relative cursor-pointer"
-                onClick={() => setSelectedProduct(product)}
+                onClick={() => router.push(`/products/${product.id}`)}
               >
                 {/* 3:4 Aspect Ratio Product Image */}
                 <div className="relative aspect-studio-portrait bg-neutral-100 overflow-hidden">
