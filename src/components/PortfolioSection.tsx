@@ -6,7 +6,6 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Heart, ShoppingBag, Eye, ArrowRight, X, Check, QrCode, CreditCard, ShieldCheck } from "lucide-react";
-import { generateQRCodeSVG, generateBarcodeSVG } from "@/lib/qrGenerator";
 
 interface Product {
   id: string;
@@ -539,10 +538,15 @@ export default function PortfolioSection() {
                         <span>สแกนจ่ายด้วยทุกธนาคาร</span>
                       </div>
                       
-                      <div 
-                        className="w-44 h-44 mx-auto border border-neutral-300 p-1 flex items-center justify-center bg-white"
-                        dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(`PROMPTPAY-0105569000123-AMOUNT-${checkoutProduct?.price || 0}`, 170) }}
-                      />
+                      <div className="w-44 h-44 mx-auto border border-neutral-300 p-1 flex items-center justify-center bg-white">
+                        <img
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=${encodeURIComponent(`PROMPTPAY-0105569000123-AMOUNT-${checkoutProduct?.price || 0}`)}&margin=2`}
+                          width={170}
+                          height={170}
+                          alt="QR Code PromptPay"
+                          className="mx-auto block bg-white object-contain"
+                        />
+                      </div>
 
                       <div className="text-[10px] font-bold text-black mt-2 font-mono uppercase">
                         TUKSHOP CO., LTD. (พร้อมเพย์)

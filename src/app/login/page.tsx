@@ -1,16 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Check, X, ArrowRight, User, Eye, EyeOff } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import CtaFooter from "@/components/CtaFooter";
 
-export default function CustomerAuthPage() {
+function CustomerAuthContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState<"login" | "register">("login");
+
+  useEffect(() => {
+    if (searchParams.get("mode") === "register") {
+      setMode("register");
+    }
+  }, [searchParams]);
 
   // Form Data States
   const [email, setEmail] = useState("");
@@ -274,5 +281,13 @@ export default function CustomerAuthPage() {
         </motion.div>
       )}
     </div>
+  );
+}
+
+export default function CustomerAuthPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+      <CustomerAuthContent />
+    </Suspense>
   );
 }

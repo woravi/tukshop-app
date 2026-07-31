@@ -87,8 +87,8 @@ export default function Navbar() {
           <div className="flex items-center gap-3 sm:gap-6 text-xs text-neutral-800">
 
             {/* HIGH VISIBILITY AMBER REGISTER MEMBER BUTTON */}
-            <Link 
-              href="/login" 
+            <Link
+              href="/login?mode=register"
               className="bg-amber-400 text-black text-[11px] font-black uppercase tracking-wider px-3.5 py-1.5 hover:bg-amber-300 transition-all border border-black flex items-center gap-1.5 shadow-xs font-prompt"
               title="สมัครสมาชิกใหม่รับส่วนลด 10%"
             >
