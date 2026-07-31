@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Heart, ShoppingBag, Eye, ArrowRight, X, Check, QrCode, CreditCard, ShieldCheck } from "lucide-react";
@@ -553,6 +554,16 @@ export default function PortfolioSection() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* PERMANENT STICKY FLOATING REGISTER MEMBER BADGE BUTTON */}
+        <div className="fixed bottom-6 right-6 z-40">
+          <Link
+            href="/login"
+            className="bg-amber-400 text-black text-xs font-black uppercase tracking-wider px-4 py-3 border-2 border-black rounded-full shadow-2xl flex items-center gap-2 hover:bg-amber-300 hover:scale-105 transition-all font-prompt"
+          >
+            <span>🎁 สมัครสมาชิก (รับส่วนลด 10%)</span>
+          </Link>
+        </div>
 
       </div>
     </section>

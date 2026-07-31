@@ -54,9 +54,11 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3 }}
-            className="flex items-center gap-2 cursor-pointer hover:underline"
           >
-            <span>{announcements[activeAnnouncement]}</span>
+            <Link href="/login" className="flex items-center gap-2 cursor-pointer hover:underline font-kanit">
+              <span>{announcements[activeAnnouncement]}</span>
+              <span className="font-bold text-amber-400 underline ml-1 font-prompt">สมัครสมาชิกเลย →</span>
+            </Link>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -82,12 +84,12 @@ export default function Navbar() {
           </Link>
 
           {/* Top Right Utility Bar (Account, Search, Cart) */}
-          <div className="flex items-center gap-6 text-xs text-neutral-800">
+          <div className="flex items-center gap-3 sm:gap-6 text-xs text-neutral-800">
 
-            {/* Customer Register Member Button */}
+            {/* HIGH VISIBILITY AMBER REGISTER MEMBER BUTTON */}
             <Link 
               href="/login" 
-              className="bg-black text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 hover:bg-neutral-800 transition-colors flex items-center gap-1.5 shadow-2xs font-prompt"
+              className="bg-amber-400 text-black text-[11px] font-black uppercase tracking-wider px-3.5 py-1.5 hover:bg-amber-300 transition-all border border-black flex items-center gap-1.5 shadow-xs font-prompt"
               title="สมัครสมาชิกใหม่รับส่วนลด 10%"
             >
               <User className="w-3.5 h-3.5" />
