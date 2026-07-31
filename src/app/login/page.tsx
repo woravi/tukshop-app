@@ -296,7 +296,7 @@ function CustomerAuthContent() {
         >
           <p className="text-[11px] font-light text-neutral-300 text-center sm:text-left max-w-4xl leading-relaxed">
             This website uses cookies. Please accept our cookie policy for your best experience. You can learn more on how to adjust your cookie setting in our cookie policy{" "}
-            <a href="#" className="underline font-semibold text-white">Privacy Policy</a>
+            <a href="/privacy" className="underline font-semibold text-white">Privacy Policy</a>
           </p>
 
           <div className="flex items-center gap-2 shrink-0">
