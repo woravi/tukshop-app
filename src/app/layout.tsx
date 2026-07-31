@@ -16,6 +16,8 @@ const kanitFont = Kanit({
   display: "swap",
 });
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "TukShop | Digital Boutique & Commerce OS",
   description: "TukShop - แพลตฟอร์มการค้าและระบบ POS ยุคใหม่ ผสมผสานความหรูหราแบบ Digital Boutique มอบประสบการณ์ช้อปปิ้งและจัดการร้านค้าไร้รอยต่อ",
