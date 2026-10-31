@@ -20,13 +20,6 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [activeAnnouncement, setActiveAnnouncement] = useState(0);
-
-  const announcements = [
-    "จัดส่งฟรี ไม่มีขั้นต่ำ ระหว่างวันที่ 16 ก.ค. 2569 ถึง 16 ส.ค. 2569",
-    "ช้อปก่อน จ่ายทีหลัง กับบริการผ่อนชำระ 0%*",
-    "รับส่วนลด 10% สำหรับออเดอร์แรกของคุณ [ลงทะเบียนเลย]",
-  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,34 +29,9 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveAnnouncement((prev) => (prev + 1) % announcements.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, [announcements.length]);
-
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white font-prompt">
-      {/* 1. studiofour Top Announcement Ticker Bar */}
-      <div className="bg-black text-white text-[11px] py-2 px-4 text-center font-normal tracking-wide flex items-center justify-center border-b border-neutral-800 relative z-50">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeAnnouncement}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Link href="/login" className="flex items-center gap-2 cursor-pointer hover:underline font-kanit">
-              <span>{announcements[activeAnnouncement]}</span>
-              <span className="font-bold text-amber-400 underline ml-1 font-prompt">สมัครสมาชิกเลย →</span>
-            </Link>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* 2. Main Luxury Header */}
+      {/* Main Luxury Header */}
       <div className={`w-full transition-all duration-300 border-b border-neutral-200 ${scrolled ? "py-3 shadow-xs" : "py-4"}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-8 flex items-center justify-between">
           

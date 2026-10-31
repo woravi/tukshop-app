@@ -36,6 +36,7 @@ interface Product {
   badge?: string;
   qrCode: string;
   image: string;
+  images?: string[];
   description: string;
 }
 
@@ -224,6 +225,11 @@ export default function ProductDetailPage() {
     );
   }
 
+  const productGalleryImages = Array.from(new Set([
+    product.image || '/images/studio_hero_banner.jpg',
+    ...(product.images || [])
+  ])).slice(0, 4);
+
   return (
     <div className="min-h-screen bg-white text-black font-prompt">
       <Navbar />
@@ -298,9 +304,9 @@ export default function ProductDetailPage() {
 
             {/* Thumbnail Selection Strip */}
             <div className="grid grid-cols-4 gap-3">
-              {[product.image, '/images/studio_hero_banner.jpg', '/images/fashion_jacket.jpg', product.image].map((img, idx) => (
+              {productGalleryImages.map((img, idx) => (
                 <button
-                  key={idx}
+                  key={`${img}-${idx}`}
                   onClick={() => setSelectedImage(img || '/images/studio_hero_banner.jpg')}
                   className={`relative aspect-studio-portrait bg-neutral-100 border transition-all ${
                     selectedImage === img ? 'border-2 border-black scale-95' : 'border-neutral-200 opacity-70 hover:opacity-100'

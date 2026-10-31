@@ -21,6 +21,7 @@ export interface Product {
   badge?: string;
   qrCode: string;
   image: string;
+  images?: string[];
   description: string;
 }
 

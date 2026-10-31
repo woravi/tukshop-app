@@ -25,7 +25,16 @@ import {
   Printer,
   FileText,
   Bell,
-  LogOut
+  LogOut,
+  ImageIcon,
+  Tags,
+  Boxes,
+  BadgeDollarSign,
+  Save,
+  Eye,
+  Info,
+  UploadCloud,
+  CheckCircle
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -41,6 +50,7 @@ interface Product {
   badge?: string;
   qrCode: string;
   image: string;
+  images?: string[];
   description: string;
 }
 
@@ -67,6 +77,20 @@ interface Order {
   date: string;
 }
 
+const PRODUCT_IMAGE_OPTIONS = [
+  { src: '/images/fashion_jacket.jpg', label: 'Fashion Jacket' },
+  { src: '/images/quinn_tshirt.jpg', label: 'Quinn T-Shirt' },
+  { src: '/images/quinn_denim_jeans.jpg', label: 'Quinn Denim' },
+  { src: '/images/satur_cardigan.jpg', label: 'Satur Cardigan' },
+  { src: '/images/satur_ball_cap.jpg', label: 'Satur Cap' },
+  { src: '/images/melissa_pack_go.jpg', label: 'Melissa Pack & Go' },
+];
+
+const MAX_PRODUCT_IMAGE_SIZE = 5 * 1024 * 1024;
+const PRODUCT_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const PRODUCT_IMAGE_PATH_PATTERN = /^\/(?:images|uploads)\/[A-Za-z0-9][A-Za-z0-9._/-]*\.(?:jpe?g|png|webp)$/i;
+const ADDITIONAL_IMAGE_SLOTS = 3;
+
 export default function AdminDashboard() {
   const router = useRouter();
   
@@ -89,6 +113,14 @@ export default function AdminDashboard() {
   // Product Modal State
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isSavingProduct, setIsSavingProduct] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isDraggingImage, setIsDraggingImage] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState('');
+  const [uploadingAdditionalImage, setUploadingAdditionalImage] = useState<number | null>(null);
+  const [additionalImageErrors, setAdditionalImageErrors] = useState<string[]>(Array(ADDITIONAL_IMAGE_SLOTS).fill(''));
+  const productImageInputRef = useRef<HTMLInputElement | null>(null);
+  const additionalImageInputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const [formData, setFormData] = useState({
     title: '',
     brand: 'QUINN',
@@ -97,7 +129,8 @@ export default function AdminDashboard() {
     stock: '',
     badge: 'NEW ARRIVAL',
     description: '',
-    image: '/images/fashion_jacket.jpg'
+    image: '/images/fashion_jacket.jpg',
+    additionalImages: Array<string>(ADDITIONAL_IMAGE_SLOTS).fill('')
   });
 
   // QR Code Scanner State
@@ -208,6 +241,22 @@ export default function AdminDashboard() {
       return;
     }
 
+    const price = Number(formData.price);
+    const stock = Number(formData.stock);
+    if (!formData.title.trim() || !Number.isFinite(price) || price < 0 || !Number.isInteger(stock) || stock < 0) {
+      showToast('กรุณากรอกชื่อสินค้า ราคา และสต็อกให้ถูกต้องก่อนบันทึก', 'error');
+      return;
+    }
+
+    const additionalImages = formData.additionalImages
+      .map((image) => image.trim())
+      .filter((image, index, images) => image && image !== formData.image && images.indexOf(image) === index);
+    if (additionalImages.some((image) => image.includes('..') || !PRODUCT_IMAGE_PATH_PATTERN.test(image))) {
+      showToast('รูปเพิ่มเติมต้องเป็นไฟล์ JPG, PNG หรือ WebP ภายในเว็บไซต์', 'error');
+      return;
+    }
+
+    setIsSavingProduct(true);
     try {
       const isEdit = !!editingProduct;
       const url = '/api/products';
@@ -216,25 +265,28 @@ export default function AdminDashboard() {
       const payload = isEdit
         ? {
             id: editingProduct.id,
-            title: formData.title,
+            title: formData.title.trim(),
             brand: formData.brand,
             category: formData.category,
-            price: Number(formData.price),
-            stock: Number(formData.stock),
-            badge: formData.badge,
-            description: formData.description,
+            price,
+            stock,
+            badge: formData.badge.trim(),
+            description: formData.description.trim(),
+            image: formData.image,
+            images: additionalImages,
             userRole: currentRole,
             userName
           }
         : {
-            title: formData.title,
+            title: formData.title.trim(),
             brand: formData.brand,
             category: formData.category,
-            price: Number(formData.price),
-            stock: Number(formData.stock),
-            badge: formData.badge,
-            description: formData.description,
+            price,
+            stock,
+            badge: formData.badge.trim(),
+            description: formData.description.trim(),
             image: formData.image,
+            images: additionalImages,
             userRole: currentRole,
             userName
           };
@@ -258,6 +310,78 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
+    } finally {
+      setIsSavingProduct(false);
+    }
+  };
+
+  const uploadProductImageFile = async (file: File) => {
+    if (!PRODUCT_IMAGE_TYPES.includes(file.type)) {
+      throw new Error('รองรับเฉพาะไฟล์ JPG, PNG และ WebP');
+    }
+    if (file.size > MAX_PRODUCT_IMAGE_SIZE) {
+      throw new Error('ไฟล์มีขนาดเกิน 5 MB กรุณาเลือกรูปที่เล็กลง');
+    }
+
+    const uploadData = new FormData();
+    uploadData.append('file', file);
+    uploadData.append('userRole', currentRole);
+
+    const response = await fetch('/api/uploads', {
+      method: 'POST',
+      body: uploadData
+    });
+    const data = await response.json();
+
+    if (!response.ok || !data.success || !data.url) {
+      throw new Error(data.error || 'อัปโหลดรูปไม่สำเร็จ');
+    }
+
+    return data.url as string;
+  };
+
+  const handleProductImageUpload = async (file?: File) => {
+    if (!file) return;
+
+    setImageUploadError('');
+    setIsUploadingImage(true);
+    try {
+      const image = await uploadProductImageFile(file);
+      setFormData((current) => ({ ...current, image }));
+      showToast('อัปโหลดรูปสินค้าเรียบร้อยแล้ว');
+    } catch (error) {
+      setImageUploadError(error instanceof Error ? error.message : 'อัปโหลดรูปไม่สำเร็จ กรุณาลองใหม่');
+    } finally {
+      setIsUploadingImage(false);
+      if (productImageInputRef.current) productImageInputRef.current.value = '';
+    }
+  };
+
+  const updateAdditionalImage = (index: number, image: string) => {
+    setFormData((current) => {
+      const additionalImages = [...current.additionalImages];
+      additionalImages[index] = image;
+      return { ...current, additionalImages };
+    });
+  };
+
+  const handleAdditionalImageUpload = async (index: number, file?: File) => {
+    if (!file) return;
+
+    setAdditionalImageErrors((current) => current.map((error, errorIndex) => errorIndex === index ? '' : error));
+    setUploadingAdditionalImage(index);
+    try {
+      const image = await uploadProductImageFile(file);
+      updateAdditionalImage(index, image);
+      showToast(`อัปโหลดรูปเพิ่มเติม ${index + 1} เรียบร้อยแล้ว`);
+    } catch (error) {
+      setAdditionalImageErrors((current) => current.map((message, errorIndex) => (
+        errorIndex === index ? (error instanceof Error ? error.message : 'อัปโหลดรูปไม่สำเร็จ กรุณาลองใหม่') : message
+      )));
+    } finally {
+      setUploadingAdditionalImage(null);
+      const input = additionalImageInputRefs.current[index];
+      if (input) input.value = '';
     }
   };
 
@@ -285,7 +409,8 @@ export default function AdminDashboard() {
       stock: p.stock.toString(),
       badge: p.badge || 'NEW ARRIVAL',
       description: p.description,
-      image: p.image
+      image: p.image,
+      additionalImages: [...(p.images || []).slice(0, ADDITIONAL_IMAGE_SLOTS), ...Array<string>(ADDITIONAL_IMAGE_SLOTS).fill('')].slice(0, ADDITIONAL_IMAGE_SLOTS)
     });
     setIsProductModalOpen(true);
   };
@@ -312,6 +437,10 @@ export default function AdminDashboard() {
   };
 
   const resetForm = () => {
+    setImageUploadError('');
+    setAdditionalImageErrors(Array(ADDITIONAL_IMAGE_SLOTS).fill(''));
+    setUploadingAdditionalImage(null);
+    setIsDraggingImage(false);
     setFormData({
       title: '',
       brand: 'QUINN',
@@ -320,7 +449,8 @@ export default function AdminDashboard() {
       stock: '',
       badge: 'NEW ARRIVAL',
       description: '',
-      image: '/images/fashion_jacket.jpg'
+      image: '/images/fashion_jacket.jpg',
+      additionalImages: Array<string>(ADDITIONAL_IMAGE_SLOTS).fill('')
     });
   };
 
@@ -575,12 +705,12 @@ export default function AdminDashboard() {
               {products.map(p => (
                 <div key={p.id} className="bg-white border border-neutral-200 p-5 flex flex-col justify-between hover:border-black transition-colors">
                   <div>
-                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-neutral-100 gap-3">
-                      <div>
-                        <span className="text-[9px] font-mono font-bold bg-neutral-100 text-neutral-700 px-2 py-0.5 border border-neutral-200 uppercase block w-max mb-1">
+                    <div className="grid grid-cols-3 items-stretch gap-2 mb-4 pb-3 border-b border-neutral-100">
+                      <div className="min-w-0 flex flex-col justify-center items-start">
+                        <span className="text-[9px] font-mono font-bold bg-neutral-100 text-neutral-700 px-2 py-0.5 border border-neutral-200 uppercase block w-max max-w-full truncate mb-1">
                           {p.brand}
                         </span>
-                        <span className="text-[10px] font-mono bg-black text-white font-bold px-1.5 py-0.5 block w-max mb-1">
+                        <span className="text-[10px] font-mono bg-black text-white font-bold px-1.5 py-0.5 block w-max max-w-full truncate mb-1">
                           {p.qrCode}
                         </span>
                         <button
@@ -591,11 +721,21 @@ export default function AdminDashboard() {
                         </button>
                       </div>
 
+                      <div className="relative aspect-square w-full bg-neutral-100 overflow-hidden">
+                        <Image
+                          src={p.image || '/images/studio_hero_banner.jpg'}
+                          alt={p.title}
+                          fill
+                          sizes="(min-width: 768px) 11vw, 33vw"
+                          className="object-cover"
+                        />
+                      </div>
+
                       {/* Prominent High-Contrast Visual QR Code */}
                       <div 
                         onClick={() => setZoomQRProduct(p)}
-                        className="w-24 h-24 bg-white border-2 border-black p-1 shrink-0 shadow-sm cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
-                        dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(`https://tukshop.ratchavit.com/admin?code=${p.qrCode}`, 90) }}
+                        className="w-full aspect-square bg-white border-2 border-black p-1 shadow-sm cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
+                        dangerouslySetInnerHTML={{ __html: generateQRCodeSVG(`https://tukshop.ratchavit.com/admin?code=${p.qrCode}`, 120) }}
                         title="คลิกเพื่อขยายรูป QR Code สำหรับสแกนด้วยมือถือ"
                       />
                     </div>
@@ -1202,136 +1342,446 @@ export default function AdminDashboard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsProductModalOpen(false)}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer font-prompt"
+            className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 font-prompt"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="product-form-title"
           >
             <motion.div
               initial={{ scale: 0.95, y: 15 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 15 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-white border border-neutral-300 max-w-xl w-full p-6 shadow-2xl cursor-default relative"
+              className="bg-neutral-100 border border-neutral-300 max-w-6xl w-full max-h-[94vh] shadow-2xl overflow-hidden flex flex-col"
             >
-              <button
-                onClick={() => setIsProductModalOpen(false)}
-                className="absolute top-4 right-4 p-2 text-black hover:opacity-60"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-[9px] font-mono font-bold bg-black text-white px-2.5 py-0.5 uppercase">
-                  MANAGER PERMISSION AUTHORIZED
-                </span>
+              <div className="flex-none bg-white border-b border-neutral-200 px-5 py-4 sm:px-7 sm:py-5 flex items-start justify-between gap-4">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <span className="text-[9px] font-mono font-bold bg-black text-white px-2.5 py-1 uppercase tracking-wider">
+                      PRODUCT CATALOG
+                    </span>
+                    <span className="text-[9px] font-mono font-bold bg-green-50 text-green-700 border border-green-200 px-2.5 py-1 uppercase tracking-wider">
+                      MANAGER AUTHORIZED
+                    </span>
+                  </div>
+                  <h3 id="product-form-title" className="font-black text-xl sm:text-2xl text-black tracking-tight">
+                    {editingProduct ? 'แก้ไขข้อมูลสินค้า' : 'เพิ่มสินค้าใหม่'}
+                  </h3>
+                  <p className="font-kanit text-xs text-neutral-500 mt-1">
+                    กรอกข้อมูลที่ลูกค้าจะเห็น พร้อมกำหนดราคาและสต็อกให้ครบก่อนบันทึก
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsProductModalOpen(false)}
+                  disabled={isSavingProduct}
+                  aria-label="ปิดหน้าต่างเพิ่มสินค้า"
+                  className="shrink-0 w-10 h-10 border border-neutral-200 bg-white flex items-center justify-center text-black hover:bg-neutral-100 disabled:opacity-40"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              <h3 className="font-black text-xl uppercase text-black mb-4">
-                {editingProduct ? 'แก้ไขข้อมูลสินค้า (Manager Edit)' : 'เพิ่มสินค้าใหม่เข้าคลัง (Manager Add)'}
-              </h3>
+              <form onSubmit={handleSaveProduct} className="min-h-0 flex-1 flex flex-col font-kanit text-xs">
+                <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,0.75fr)] gap-4 sm:gap-5">
+                    <div className="space-y-4 sm:space-y-5">
+                      <section className="bg-white border border-neutral-200 p-4 sm:p-5 shadow-studio-subtle">
+                        <div className="flex items-center gap-2 mb-4">
+                          <FileText className="w-4 h-4" />
+                          <h4 className="font-prompt font-black text-sm text-black">ข้อมูลหลัก</h4>
+                        </div>
 
-              <form onSubmit={handleSaveProduct} className="space-y-4 font-kanit text-xs">
-                <div>
-                  <label className="font-bold text-black block mb-1">ชื่อสินค้า (Product Title)*</label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    required
-                    placeholder="เช่น แจ็คเก็ตฮู้ดดี้แต่งซิปคู่..."
-                    className="w-full bg-neutral-50 border border-neutral-300 text-xs px-3 py-2 focus:outline-none focus:border-black"
-                  />
+                        <div className="space-y-4">
+                          <div>
+                            <div className="flex items-center justify-between gap-3 mb-1.5">
+                              <label htmlFor="product-title" className="font-bold text-black">ชื่อสินค้า <span className="text-red-600">*</span></label>
+                              <span className="font-mono text-[9px] text-neutral-400">{formData.title.length}/120</span>
+                            </div>
+                            <input
+                              id="product-title"
+                              type="text"
+                              value={formData.title}
+                              onChange={(e) => setFormData({ ...formData, title: e.target.value.slice(0, 120) })}
+                              required
+                              autoFocus
+                              placeholder="เช่น Quinn Fall Embroidered T-Shirt"
+                              className="w-full bg-white border border-neutral-300 text-sm px-3.5 py-3 focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+                            />
+                            <p className="text-[10px] text-neutral-500 mt-1.5">ใช้ชื่อที่ลูกค้าเข้าใจง่าย ระบุรุ่น สี หรือคอลเลกชันเท่าที่จำเป็น</p>
+                          </div>
+
+                          <div>
+                            <div className="flex items-center justify-between gap-3 mb-1.5">
+                              <label htmlFor="product-description" className="font-bold text-black">รายละเอียดสินค้า</label>
+                              <span className="font-mono text-[9px] text-neutral-400">{formData.description.length}/500</span>
+                            </div>
+                            <textarea
+                              id="product-description"
+                              value={formData.description}
+                              onChange={(e) => setFormData({ ...formData, description: e.target.value.slice(0, 500) })}
+                              rows={5}
+                              placeholder="อธิบายเนื้อผ้า ทรง จุดเด่น และวิธีดูแลสินค้า..."
+                              className="w-full resize-y bg-white border border-neutral-300 text-xs px-3.5 py-3 leading-relaxed focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="mt-5 pt-5 border-t border-neutral-200">
+                          <div className="flex items-start justify-between gap-3 mb-3">
+                            <div>
+                              <h5 className="font-prompt font-bold text-xs text-black">ภาพเพิ่มเติม (ไม่บังคับ)</h5>
+                              <p className="text-[10px] text-neutral-500 mt-0.5">เพิ่มภาพสินค้าได้อีกสูงสุด 3 มุม ภาพหลักยังใช้บนการ์ดสินค้า</p>
+                            </div>
+                            <span className="shrink-0 font-mono text-[9px] text-neutral-500 bg-neutral-100 border border-neutral-200 px-2 py-1">
+                              {formData.additionalImages.filter(Boolean).length}/3
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            {formData.additionalImages.map((image, index) => (
+                              <div key={index} className="border border-neutral-200 bg-neutral-50 p-2.5 min-w-0">
+                                <div className="relative aspect-[4/3] bg-white border border-neutral-200 overflow-hidden">
+                                  {image ? (
+                                    <Image
+                                      src={image}
+                                      alt={`ตัวอย่างรูปสินค้าเพิ่มเติม ${index + 1}`}
+                                      fill
+                                      sizes="(min-width: 640px) 180px, 100vw"
+                                      className="object-cover"
+                                    />
+                                  ) : (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center text-neutral-400">
+                                      <ImageIcon className="w-6 h-6" />
+                                      <span className="text-[9px] mt-1">ยังไม่ได้เลือกรูป</span>
+                                    </div>
+                                  )}
+                                  <span className="absolute left-1.5 top-1.5 bg-black text-white text-[8px] font-mono font-bold px-1.5 py-0.5">
+                                    มุมที่ {index + 1}
+                                  </span>
+                                  {image && (
+                                    <button
+                                      type="button"
+                                      onClick={() => updateAdditionalImage(index, '')}
+                                      aria-label={`ลบรูปเพิ่มเติม ${index + 1}`}
+                                      className="absolute right-1.5 top-1.5 w-7 h-7 bg-white border border-neutral-300 text-red-600 flex items-center justify-center hover:bg-red-50"
+                                    >
+                                      <X className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+                                </div>
+
+                                <input
+                                  ref={(input) => { additionalImageInputRefs.current[index] = input; }}
+                                  id={`product-additional-image-${index}`}
+                                  type="file"
+                                  accept="image/jpeg,image/png,image/webp"
+                                  onChange={(e) => handleAdditionalImageUpload(index, e.target.files?.[0])}
+                                  className="sr-only"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => additionalImageInputRefs.current[index]?.click()}
+                                  disabled={uploadingAdditionalImage !== null || isUploadingImage}
+                                  className="w-full mt-2 bg-white border border-neutral-300 text-black font-bold px-2 py-2 hover:bg-black hover:text-white disabled:bg-neutral-200 disabled:text-neutral-500"
+                                >
+                                  {uploadingAdditionalImage === index ? 'กำลังอัปโหลด...' : image ? 'เปลี่ยนรูป' : 'เลือกรูป'}
+                                </button>
+                                <input
+                                  type="text"
+                                  value={image}
+                                  onChange={(e) => updateAdditionalImage(index, e.target.value)}
+                                  aria-label={`พาธรูปเพิ่มเติม ${index + 1}`}
+                                  placeholder="/images/another-angle.jpg"
+                                  className="w-full mt-2 bg-white border border-neutral-300 font-mono text-[9px] px-2 py-2 focus:outline-none focus:border-black"
+                                />
+                                {additionalImageErrors[index] && (
+                                  <p role="alert" className="text-[9px] font-bold text-red-600 mt-1.5">{additionalImageErrors[index]}</p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </section>
+
+                      <section className="bg-white border border-neutral-200 p-4 sm:p-5 shadow-studio-subtle">
+                        <div className="flex items-center gap-2 mb-4">
+                          <ImageIcon className="w-4 h-4" />
+                          <div>
+                            <h4 className="font-prompt font-black text-sm text-black">รูปภาพสินค้า</h4>
+                            <p className="text-[10px] text-neutral-500 mt-0.5">เลือกรูปหลักที่ชัดเจนและสื่อถึงสินค้าจริง</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-[190px_minmax(0,1fr)] gap-4">
+                          <div className="relative aspect-[3/4] bg-neutral-100 border border-neutral-200 overflow-hidden">
+                            <Image
+                              src={formData.image || '/images/fashion_jacket.jpg'}
+                              alt="ตัวอย่างรูปสินค้า"
+                              fill
+                              sizes="190px"
+                              className="object-cover"
+                            />
+                            <span className="absolute left-2 top-2 bg-black text-white text-[8px] font-mono font-bold px-2 py-1 uppercase tracking-wider">MAIN IMAGE</span>
+                          </div>
+
+                          <div className="min-w-0">
+                            <input
+                              ref={productImageInputRef}
+                              id="product-image-upload"
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp"
+                              onChange={(e) => handleProductImageUpload(e.target.files?.[0])}
+                              className="sr-only"
+                            />
+                            <div
+                              onDragEnter={(e) => {
+                                e.preventDefault();
+                                setIsDraggingImage(true);
+                              }}
+                              onDragOver={(e) => {
+                                e.preventDefault();
+                                setIsDraggingImage(true);
+                              }}
+                              onDragLeave={(e) => {
+                                e.preventDefault();
+                                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setIsDraggingImage(false);
+                              }}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                setIsDraggingImage(false);
+                                handleProductImageUpload(e.dataTransfer.files?.[0]);
+                              }}
+                              className={`border-2 border-dashed p-4 text-center transition-colors ${isDraggingImage ? 'border-black bg-neutral-100' : imageUploadError ? 'border-red-300 bg-red-50' : 'border-neutral-300 bg-neutral-50 hover:border-neutral-500'}`}
+                            >
+                              <UploadCloud className={`w-7 h-7 mx-auto ${isUploadingImage ? 'animate-bounce text-black' : 'text-neutral-500'}`} />
+                              <p className="font-bold text-black mt-2">
+                                {isUploadingImage ? 'กำลังอัปโหลดรูป...' : 'ลากรูปมาวางที่นี่'}
+                              </p>
+                              <p className="text-[10px] text-neutral-500 mt-1">หรือเลือกไฟล์จากคอมพิวเตอร์</p>
+                              <button
+                                type="button"
+                                onClick={() => productImageInputRef.current?.click()}
+                                disabled={isUploadingImage}
+                                className="mt-3 bg-black text-white font-bold px-4 py-2 hover:bg-neutral-800 disabled:bg-neutral-300 disabled:text-neutral-500"
+                              >
+                                {isUploadingImage ? 'โปรดรอสักครู่' : 'เลือกรูปสินค้า'}
+                              </button>
+                              <p className="font-mono text-[9px] text-neutral-400 mt-2">JPG, PNG หรือ WebP · ไม่เกิน 5 MB</p>
+                            </div>
+
+                            {imageUploadError ? (
+                              <p role="alert" className="text-[10px] font-bold text-red-600 mt-2">{imageUploadError}</p>
+                            ) : formData.image.startsWith('/uploads/') ? (
+                              <p className="flex items-center gap-1.5 text-[10px] font-bold text-green-700 mt-2">
+                                <CheckCircle className="w-3.5 h-3.5" /> รูปนี้อัปโหลดจากเครื่องแล้ว
+                              </p>
+                            ) : null}
+
+                            <label htmlFor="product-image" className="font-bold text-black block mt-4 mb-1.5">หรือใส่พาธรูปภายในเว็บไซต์</label>
+                            <input
+                              id="product-image"
+                              type="text"
+                              value={formData.image}
+                              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                              placeholder="/images/product-name.jpg"
+                              className="w-full bg-white border border-neutral-300 font-mono text-[10px] px-3 py-2.5 focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+                            />
+                            <p className="text-[10px] text-neutral-500 mt-1.5">หรือเลือกจากคลังภาพที่มีอยู่</p>
+                            <div className="grid grid-cols-3 gap-2 mt-3">
+                              {PRODUCT_IMAGE_OPTIONS.map((option) => (
+                                <button
+                                  key={option.src}
+                                  type="button"
+                                  onClick={() => setFormData({ ...formData, image: option.src })}
+                                  title={option.label}
+                                  aria-label={`เลือกรูป ${option.label}`}
+                                  className={`relative aspect-square overflow-hidden border-2 transition-colors ${formData.image === option.src ? 'border-black' : 'border-transparent hover:border-neutral-400'}`}
+                                >
+                                  <Image src={option.src} alt="" fill sizes="90px" className="object-cover" />
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+
+                      <section className="bg-white border border-neutral-200 p-4 sm:p-5 shadow-studio-subtle">
+                        <div className="flex items-center gap-2 mb-4">
+                          <BadgeDollarSign className="w-4 h-4" />
+                          <h4 className="font-prompt font-black text-sm text-black">ราคาและสต็อก</h4>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label htmlFor="product-price" className="font-bold text-black block mb-1.5">ราคาขาย <span className="text-red-600">*</span></label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 font-prompt font-bold text-neutral-500">฿</span>
+                              <input
+                                id="product-price"
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                inputMode="decimal"
+                                value={formData.price}
+                                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                required
+                                placeholder="0.00"
+                                className="w-full bg-white border border-neutral-300 text-sm pl-8 pr-3 py-3 focus:outline-none focus:border-black focus:ring-1 focus:ring-black font-prompt"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label htmlFor="product-stock" className="font-bold text-black block mb-1.5">สต็อกพร้อมขาย <span className="text-red-600">*</span></label>
+                            <div className="relative">
+                              <Boxes className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                              <input
+                                id="product-stock"
+                                type="number"
+                                min="0"
+                                step="1"
+                                inputMode="numeric"
+                                value={formData.stock}
+                                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                                required
+                                placeholder="0"
+                                className="w-full bg-white border border-neutral-300 text-sm pl-9 pr-12 py-3 focus:outline-none focus:border-black focus:ring-1 focus:ring-black font-prompt"
+                              />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-neutral-500">ชิ้น</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-3 flex items-start gap-2 bg-blue-50 border border-blue-100 p-3 text-[10px] text-blue-800">
+                          <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                          <span>ระบบจะสร้างรหัสสินค้าและ QR Code ให้อัตโนมัติหลังบันทึกสินค้าใหม่</span>
+                        </div>
+                      </section>
+                    </div>
+
+                    <aside className="space-y-4 sm:space-y-5">
+                      <section className="bg-white border border-neutral-200 p-4 sm:p-5 shadow-studio-subtle">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Tags className="w-4 h-4" />
+                          <h4 className="font-prompt font-black text-sm text-black">การจัดหมวดหมู่</h4>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div>
+                            <label htmlFor="product-brand" className="font-bold text-black block mb-1.5">แบรนด์</label>
+                            <select
+                              id="product-brand"
+                              value={formData.brand}
+                              onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                              className="w-full bg-white border border-neutral-300 text-xs px-3 py-3 focus:outline-none focus:border-black focus:ring-1 focus:ring-black font-prompt uppercase"
+                            >
+                              {["QUINN", "SATUR", "MELISSA", "MARITHÉ", "REEF", "IPANEMA", "DIESEL", "PUMA"].map(b => (
+                                <option key={b} value={b}>{b}</option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div>
+                            <label htmlFor="product-category" className="font-bold text-black block mb-1.5">หมวดหมู่</label>
+                            <select
+                              id="product-category"
+                              value={formData.category}
+                              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                              className="w-full bg-white border border-neutral-300 text-xs px-3 py-3 focus:outline-none focus:border-black focus:ring-1 focus:ring-black font-prompt"
+                            >
+                              <option value="women">ผู้หญิง (Women)</option>
+                              <option value="men">ผู้ชาย (Men)</option>
+                              <option value="accessories">เครื่องประดับ (Accessories)</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label htmlFor="product-badge" className="font-bold text-black block mb-1.5">ป้ายสินค้า</label>
+                            <input
+                              id="product-badge"
+                              type="text"
+                              list="product-badge-options"
+                              value={formData.badge}
+                              onChange={(e) => setFormData({ ...formData, badge: e.target.value.slice(0, 30) })}
+                              placeholder="NEW ARRIVAL"
+                              className="w-full bg-white border border-neutral-300 text-xs px-3 py-3 focus:outline-none focus:border-black focus:ring-1 focus:ring-black font-prompt uppercase"
+                            />
+                            <datalist id="product-badge-options">
+                              <option value="NEW ARRIVAL" />
+                              <option value="HOT ITEM" />
+                              <option value="LIMITED" />
+                              <option value="MUST HAVE" />
+                              <option value="EXCLUSIVE" />
+                            </datalist>
+                          </div>
+                        </div>
+                      </section>
+
+                      <section className="bg-white border border-neutral-200 overflow-hidden shadow-studio-subtle">
+                        <div className="px-4 py-3 border-b border-neutral-200 flex items-center gap-2">
+                          <Eye className="w-4 h-4" />
+                          <h4 className="font-prompt font-black text-sm text-black">ตัวอย่างหน้าร้าน</h4>
+                        </div>
+                        <div className="relative aspect-[4/3] bg-neutral-100 overflow-hidden">
+                          <Image
+                            src={formData.image || '/images/fashion_jacket.jpg'}
+                            alt="ตัวอย่างสินค้าบนหน้าร้าน"
+                            fill
+                            sizes="320px"
+                            className="object-cover"
+                          />
+                          {formData.badge.trim() && (
+                            <span className="absolute top-3 left-3 bg-black text-white text-[8px] font-bold px-2 py-1 uppercase tracking-wider">
+                              {formData.badge}
+                            </span>
+                          )}
+                        </div>
+                        <div className="p-4">
+                          <span className="font-mono text-[9px] font-bold tracking-widest text-neutral-500 uppercase">{formData.brand}</span>
+                          <h5 className="font-prompt font-bold text-sm text-black mt-1 line-clamp-2">
+                            {formData.title.trim() || 'ชื่อสินค้าจะแสดงตรงนี้'}
+                          </h5>
+                          <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-neutral-100">
+                            <span className="font-prompt font-black text-base">฿{Number(formData.price || 0).toLocaleString()}</span>
+                            <span className={`text-[9px] font-mono font-bold ${Number(formData.stock || 0) > 0 ? 'text-green-700' : 'text-red-600'}`}>
+                              {Number(formData.stock || 0) > 0 ? `มีสินค้า ${Number(formData.stock).toLocaleString()} ชิ้น` : 'สินค้าหมด'}
+                            </span>
+                          </div>
+                        </div>
+                      </section>
+
+                      <div className="bg-neutral-900 text-white p-4 border border-black">
+                        <span className="text-[9px] font-mono text-neutral-400 uppercase tracking-widest">Publishing status</span>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="w-2 h-2 rounded-full bg-green-400" />
+                          <span className="font-bold text-xs">พร้อมเผยแพร่ทันทีหลังบันทึก</span>
+                        </div>
+                      </div>
+                    </aside>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="font-bold text-black block mb-1">แบรนด์ (Brand)</label>
-                    <select
-                      value={formData.brand}
-                      onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                      className="w-full bg-neutral-50 border border-neutral-300 text-xs px-3 py-2 focus:outline-none focus:border-black font-prompt uppercase"
+                <div className="flex-none bg-white border-t border-neutral-200 px-4 py-3 sm:px-6 sm:py-4 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <p className="text-[10px] text-neutral-500">
+                    <span className="text-red-600 font-bold">*</span> ช่องที่จำเป็นต้องกรอก
+                  </p>
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsProductModalOpen(false)}
+                      disabled={isSavingProduct}
+                      className="flex-1 sm:flex-none px-5 py-3 border border-neutral-300 bg-white text-black font-bold hover:bg-neutral-100 disabled:opacity-40"
                     >
-                      {["QUINN", "SATUR", "MELISSA", "MARITHÉ", "REEF", "IPANEMA", "DIESEL", "PUMA"].map(b => (
-                        <option key={b} value={b}>{b}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="font-bold text-black block mb-1">หมวดหมู่ (Category)</label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full bg-neutral-50 border border-neutral-300 text-xs px-3 py-2 focus:outline-none focus:border-black font-prompt uppercase"
+                      ยกเลิก
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSavingProduct || isUploadingImage || uploadingAdditionalImage !== null || !formData.title.trim() || formData.price === '' || !Number.isFinite(Number(formData.price)) || Number(formData.price) < 0 || formData.stock === '' || !Number.isInteger(Number(formData.stock)) || Number(formData.stock) < 0}
+                      className="flex-1 sm:flex-none bg-black text-white font-bold px-6 py-3 hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:cursor-not-allowed min-w-[180px]"
                     >
-                      <option value="women">ผู้หญิง (Women)</option>
-                      <option value="men">ผู้ชาย (Men)</option>
-                      <option value="accessories">เครื่องประดับ (Accessories)</option>
-                    </select>
+                      {isSavingProduct ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                      <span>{isSavingProduct ? 'กำลังบันทึก...' : editingProduct ? 'บันทึกการแก้ไข' : 'เพิ่มสินค้า'}</span>
+                    </button>
                   </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="font-bold text-black block mb-1">ราคาขาย (บาท)*</label>
-                    <input
-                      type="number"
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      required
-                      placeholder="เช่น 2290"
-                      className="w-full bg-neutral-50 border border-neutral-300 text-xs px-3 py-2 focus:outline-none focus:border-black font-prompt"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="font-bold text-black block mb-1">จำนวนสต็อกแรกเข้า*</label>
-                    <input
-                      type="number"
-                      value={formData.stock}
-                      onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                      required
-                      placeholder="เช่น 25"
-                      className="w-full bg-neutral-50 border border-neutral-300 text-xs px-3 py-2 focus:outline-none focus:border-black font-prompt"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="font-bold text-black block mb-1">ป้ายสินค้า (Badge Tag)</label>
-                  <input
-                    type="text"
-                    value={formData.badge}
-                    onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                    placeholder="เช่น NEW ARRIVAL / HOT / LIMITED"
-                    className="w-full bg-neutral-50 border border-neutral-300 text-xs px-3 py-2 focus:outline-none focus:border-black font-prompt uppercase"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-bold text-black block mb-1">คำอธิบายรายละเอียดสินค้า</label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={3}
-                    placeholder="รายละเอียดเพิ่มเติมของสินค้า..."
-                    className="w-full bg-neutral-50 border border-neutral-300 text-xs px-3 py-2 focus:outline-none focus:border-black"
-                  />
-                </div>
-
-                <div className="pt-4 flex justify-end gap-3 border-t border-neutral-200">
-                  <button
-                    type="button"
-                    onClick={() => setIsProductModalOpen(false)}
-                    className="px-5 py-2.5 border border-neutral-300 text-black font-bold uppercase tracking-wider hover:bg-neutral-100"
-                  >
-                    ยกเลิก
-                  </button>
-                  <button
-                    type="submit"
-                    className="bg-black text-white font-bold uppercase tracking-widest px-6 py-2.5 hover:bg-neutral-800 transition-colors"
-                  >
-                    บันทึกข้อมูล (Manager Save)
-                  </button>
                 </div>
               </form>
             </motion.div>

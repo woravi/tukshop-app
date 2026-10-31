@@ -28,4 +28,9 @@ next-env.d.ts
 
 # OS / Editor
 .DS_Store
+._*
 *.pem
+
+# Runtime product uploads (keep the directory in source control)
+/public/uploads/*
+!/public/uploads/.gitkeep

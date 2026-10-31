@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export default function HeroSection() {
   return (
-    <section id="hero" className="pt-28 lg:pt-36 bg-white font-prompt">
+    <section id="hero" className="pt-20 lg:pt-28 bg-white font-prompt">
       {/* 1. Main Full-Bleed Fashion Campaign Banner */}
       <div className="relative w-full aspect-[16/9] max-h-[640px] bg-neutral-900 overflow-hidden group">
         <Image

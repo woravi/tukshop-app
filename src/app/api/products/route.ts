@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getProducts, addProduct, updateProduct, deleteProduct } from '@/lib/db';
+import { validateAdditionalProductImages } from '@/lib/productImages.mjs';
 
 export async function GET() {
   try {
@@ -13,7 +14,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { brand, category, title, price, stock, badge, image, description, userRole, userName } = body;
+    const { brand, category, title, price, stock, badge, image, images, description, userRole, userName } = body;
 
     // Verify Manager or Admin Permission
     if (userRole !== 'MANAGER' && userRole !== 'ADMIN') {
@@ -27,6 +28,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'กรุณากรอกข้อมูล ชื่อสินค้า ราคา และจำนวนสต็อก ให้ครบถ้วน' }, { status: 400 });
     }
 
+    const imageValidation = validateAdditionalProductImages(images, image);
+    if (imageValidation.error) {
+      return NextResponse.json({ success: false, error: imageValidation.error }, { status: 400 });
+    }
+
     const qrCode = `TUK-${(brand || 'ITEM').substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
 
     const newProduct = addProduct({
@@ -38,6 +44,7 @@ export async function POST(request: Request) {
       badge: badge || 'NEW',
       qrCode,
       image: image || '/images/studio_hero_banner.jpg',
+      images: imageValidation.images || [],
       description: description || 'สินค้าคุณภาพพรีเมียมจาก TukShop'
     }, userName || 'Manager');
 
@@ -50,7 +57,7 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, userRole, userName, ...updates } = body;
+    const { id, userRole, userName, images, ...updates } = body;
 
     // Verify Manager or Admin Permission
     if (userRole !== 'MANAGER' && userRole !== 'ADMIN') {
@@ -63,6 +70,12 @@ export async function PUT(request: Request) {
     if (!id) {
       return NextResponse.json({ success: false, error: 'Product ID is required' }, { status: 400 });
     }
+
+    const imageValidation = validateAdditionalProductImages(images, typeof updates.image === 'string' ? updates.image : '');
+    if (imageValidation.error) {
+      return NextResponse.json({ success: false, error: imageValidation.error }, { status: 400 });
+    }
+    if (imageValidation.images !== undefined) updates.images = imageValidation.images;
 
     const updated = updateProduct(id, updates, userName || 'Manager');
     if (!updated) {
