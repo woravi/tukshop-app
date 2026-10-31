@@ -1,6 +1,6 @@
 # TukShop deployment
 
-## Target configuration
+## Active configuration
 
 - GitHub repository: `woravi/tukshop-app`
 - Deployment branch: `master`
@@ -11,7 +11,9 @@
 - Build: `npm run build`
 - Production domain: `tukshop.ratchavit.com`
 
-A push to the branch connected in Hostinger must produce a new deployment without a manual redeploy. Confirm the deployed commit and successful build in hPanel after changing the integration. Initial migration is tested on a temporary domain before moving the production domain.
+A push to `master` triggers a new deployment of the existing production app without clicking Redeploy. This was verified for commit `e4baa5d`: Hostinger deployment `01a1902a-973e-72fd-887d-42b96bde4659` cloned that commit, built with Node 22, published, and restarted successfully. The production storefront and product API returned HTTP 200.
+
+The app was already connected to GitHub even though its preceding deployment came from a ZIP upload. A latest ZIP deployment does not prove that automatic GitHub deployments are disconnected. No domain migration or replacement app is required.
 
 ## Before pushing
 
@@ -33,7 +35,7 @@ Start a production server after building. On an authorized disposable test insta
 TUKSHOP_SMOKE_BASE_URL=http://127.0.0.1:3218 node --test tests/production-upload-smoke.mjs
 ```
 
-The check uploads a tiny generated PNG and requires it to be readable immediately, without restarting the process. It deletes its own local test upload. On a remote test instance, the generated image remains in that instance's uploads directory.
+The check uploads a tiny generated PNG and requires it to be readable immediately, without restarting the process. It deletes its own local test upload. On a remote test instance, the generated image remains in that instance's uploads directory. Local checks require byte-for-byte equality; remote checks compare the fixture's decoded pixel values because the hosting image CDN may re-encode PNG metadata and compression. Both local and production-domain checks passed.
 
 ## Demo limitations
 
