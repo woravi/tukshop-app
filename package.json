@@ -1,35 +1,51 @@
 {
-  "name": "tukshop-landing",
-  "version": "1.0.0",
+  "name": "tukshop-app",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "postbuild": "mkdir -p tmp && touch tmp/restart.txt",
+    "build": "next build --webpack",
     "start": "next start",
-    "lint": "next lint"
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
+    "@heroicons/react": "^2.1.5",
+    "@radix-ui/react-avatar": "^1.1.0",
+    "@radix-ui/react-checkbox": "^1.1.1",
+    "@radix-ui/react-icons": "^1.3.0",
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-slider": "^1.2.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-switch": "^1.1.0",
+    "@radix-ui/react-tabs": "^1.1.0",
+    "@stripe/stripe-js": "^4.1.0",
+    "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
-    "canvas-confetti": "^1.9.4",
+    "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "framer-motion": "^11.11.11",
-    "lucide-react": "^0.454.0",
-    "next": "^14.2.15",
-    "next-auth": "^4.24.15",
+    "dotenv": "^16.4.5",
+    "framer-motion": "^11.3.19",
+    "lucide-react": "^0.364.0",
+    "mysql2": "^3.24.6",
+    "next": "^16.4.5",
+    "next-auth": "^4.24.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tailwind-merge": "^2.5.4"
+    "react-dropzone": "^14.2.3",
+    "react-hot-toast": "^2.4.1",
+    "react-icons": "^5.2.1",
+    "react-swipeable": "^7.0.1",
+    "sharp": "^0.35.5",
+    "stripe": "^16.2.0",
+    "tailwind-merge": "^2.4.0",
+    "tailwindcss-animate": "^1.0.7",
+    "zustand": "^4.5.4"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/canvas-confetti": "^1.9.0",
-    "@types/node": "^20.17.0",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.14",
-    "typescript": "^5.6.3"
+    "postcss": "^8.5.32",
+    "tailwindcss": "^3.4.1"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

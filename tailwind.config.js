@@ -1,66 +1,115 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: ["class"],
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{js,jsx}",
+    "./components/**/*.{js,jsx}",
+    "./app/**/*.{js,jsx}",
+    "./src/**/*.{js,jsx}",
   ],
+  prefix: "",
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
     extend: {
       colors: {
-        studio: {
-          DEFAULT: '#000000',
-          black: '#000000',
-          dark: '#111111',
-          offwhite: '#F9F9F9',
-          cream: '#FAF8F5',
-          border: '#E5E5E5',
-          subtle: '#F3F4F6',
-          muted: '#666666',
-          accent: '#111111',
-          red: '#D32F2F',
-          gold: '#C5A059',
+        gold: "#FFD700",
+        border: "hsl(var(--border))",
+        colorOne: "#6482AD",
+        colorTwo: "#7FA1C3",
+        colorThree: "#E2DAD6",
+        colorFour: "#F5EDED",
+        myButtonHover: "#405D72",
+        lightDark: "#31363F",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
-        obsidian: {
-          DEFAULT: '#0A0A0A',
-          card: '#121214',
-          border: '#262626',
+
+        boxShadow: {
+          neon: "0 0 15px #3498db", // Change the color to your desired neon color
         },
-        cyber: {
-          lime: '#CCFF00',
-          purple: '#A855F7',
-          deepPurple: '#7E22CE',
-          orange: '#FF5722',
-          cyan: '#00F0FF',
-        }
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
       },
-      fontFamily: {
-        prompt: ['var(--font-prompt)', 'sans-serif'],
-        kanit: ['var(--font-kanit)', 'sans-serif'],
-      },
-      boxShadow: {
-        'studio-card': '0 4px 20px rgba(0, 0, 0, 0.05)',
-        'studio-float': '0 12px 30px rgba(0, 0, 0, 0.08)',
-        'studio-subtle': '0 2px 8px rgba(0, 0, 0, 0.04)',
-        'brutal-lime': '4px 4px 0px 0px #CCFF00',
-        'brutal-purple': '4px 4px 0px 0px #A855F7',
-      },
-      animation: {
-        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'float': 'float 6s ease-in-out infinite',
-        'marquee': 'marquee 30s linear infinite',
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-8px)' },
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
-        marquee: {
-          '0%': { transform: 'translateX(0%)' },
-          '100%': { transform: 'translateX(-50%)' },
-        }
-      }
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        text: {
+          "0%, 100%": {
+            "background-size": "200% 200%",
+            "background-position": "left center",
+          },
+          "50%": {
+            "background-size": "200% 200%",
+            "background-position": "right center",
+          },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+        "spin-slow": "spin 20s linear infinite",
+      },
+      backgroundImage: {
+        "gradient-sky":
+          "linear-gradient(to top, rgba(117, 234, 255, 0.61), rgba(255, 0, 0, 0))",
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require("tailwindcss-animate"),
+    function ({ addUtilities }) {
+      const newUtilities = {
+        ".bg-grid-pattern": {
+          "background-image":
+            "linear-gradient(to right, #f0f0f0 1px, transparent 1px), linear-gradient(to bottom, #f0f0f0 1px, transparent 1px)",
+          "background-size": "20px 20px",
+        },
+      };
+      addUtilities(newUtilities);
+    },
+  ],
 };
