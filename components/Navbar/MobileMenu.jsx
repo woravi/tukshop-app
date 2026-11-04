@@ -258,7 +258,7 @@ const MobileMenu = ({
                   </li>
                   {adminPanelMob && (
                     <div className="ml-4">
-                      {["Create Product", "Orders", "All Products"].map(
+                      {["Dashboard", "Create Product", "Orders", "All Products"].map(
                         (cat) => (
                           <li key={cat}>
                             <Button
@@ -267,7 +267,9 @@ const MobileMenu = ({
                             >
                               <Link
                                 href={
-                                  cat === "Create Product"
+                                  cat === "Dashboard"
+                                    ? "/dashboard"
+                                    : cat === "Create Product"
                                     ? "/create"
                                     : cat === "All Products"
                                     ? "/products"

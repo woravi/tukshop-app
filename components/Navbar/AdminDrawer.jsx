@@ -17,7 +17,7 @@ const AdminDrawer = ({ admin, category, setCategory }) => {
             </div>
             <div>
               <ul>
-                {["Create Product", "Orders", "Products"].map((cat) => (
+                {["Dashboard", "Create Product", "Orders", "Products"].map((cat) => (
                   <li
                     key={cat}
                     onMouseEnter={() => setCategory(cat)}
@@ -29,7 +29,9 @@ const AdminDrawer = ({ admin, category, setCategory }) => {
                   >
                     <Link
                       href={
-                        cat === "Create Product"
+                        cat === "Dashboard"
+                          ? "/dashboard"
+                          : cat === "Create Product"
                           ? "/create"
                           : `/${cat.toLowerCase().replace(" ", "")}`
                       }
