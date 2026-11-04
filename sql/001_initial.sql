@@ -1,4 +1,4 @@
--- Import once into a newly provisioned empty MySQL 8 database (utf8mb4 / InnoDB).
+-- Import once into a newly provisioned empty MySQL 8 or MariaDB 11 database (utf8mb4 / InnoDB).
 -- Existing MongoDB data is NOT imported by this schema.
 CREATE TABLE users (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
