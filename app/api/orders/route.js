@@ -2,15 +2,13 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/utils/config/dbConnection";
 import Order from "@/utils/models/Order";
 import { Product } from "@/utils/models/Product";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { adminAccessStatus } from "@/lib/access.mjs";
+import { authorizeRoles } from "@/lib/server-access";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { status, actor } = await authorizeRoles(['owner', 'manager', 'kitchen', 'customer']);
+  if (status !== 200) return NextResponse.json({ error: "Unauthorized" }, { status });
   await dbConnect();
 
   const { searchParams } = new URL(req.url);
@@ -21,7 +19,7 @@ export async function GET(req) {
   const skip = (page - 1) * limit;
 
   try {
-    const orders = await Order.find({ email: session.user.email })
+    const orders = await Order.find({ email: actor.email })
       .populate({
         path: "cartProducts.product",
         model: Product,
@@ -30,7 +28,7 @@ export async function GET(req) {
       .skip(skip)
       .limit(limit);
 
-    const totalOrders = await Order.countDocuments({ email: session.user.email });
+    const totalOrders = await Order.countDocuments({ email: actor.email });
     const hasMore = totalOrders > skip + orders.length;
 
     return NextResponse.json({
@@ -50,8 +48,7 @@ export async function GET(req) {
 }
 
 export async function PUT(req) {
-  const session = await getServerSession(authOptions);
-  const access = adminAccessStatus(session);
+  const { status: access } = await authorizeRoles(['owner', 'manager']);
   if (access !== 200) return NextResponse.json({ error: "Forbidden" }, { status: access });
   await dbConnect();
 

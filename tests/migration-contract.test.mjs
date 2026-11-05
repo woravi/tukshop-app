@@ -29,13 +29,17 @@ test('password hashes are excluded from public product and registration response
   assert.match(change, /\.select\(["']\+password["']\)/);
 });
 
-test('privileged API handlers check an authenticated admin before database access', () => {
+test('privileged API handlers check fresh owner/manager authority before application data access', () => {
   for (const [route, methods] of [['products', ['POST']], ['product/[productId]', ['PUT', 'DELETE']], ['product/featured/[productId]', ['PUT']], ['ordersAdmin', ['GET', 'PUT']], ['orders', ['PUT']]]) {
     const content = readFileSync(new URL(`../app/api/${route}/route.js`, import.meta.url), 'utf8');
     for (const method of methods) {
       const handler = content.split(`export async function ${method}`)[1]?.split(/export async function /)[0];
-      assert.ok(handler?.includes('adminAccessStatus(session)'), `${route} ${method} has no admin check`);
-      assert.ok(handler.indexOf('adminAccessStatus(session)') < handler.indexOf('await connect(') || handler.indexOf('adminAccessStatus(session)') < handler.indexOf('await dbConnect('), `${route} ${method} connects before authorization`);
+      const check = handler?.search(/await authorizeRoles\(\[['"]owner['"],\s*['"]manager['"]\]\)/) ?? -1;
+      assert.ok(check >= 0, `${route} ${method} has no database-backed role check`);
+      for (const sideEffect of ['await connect(', 'await dbConnect(', 'await req.json(']) {
+        const index = handler.indexOf(sideEffect);
+        if (index >= 0) assert.ok(check < index, `${route} ${method} performs work before authorization`);
+      }
     }
   }
 });
@@ -45,8 +49,9 @@ test('customer order and profile routes use session identity, not arbitrary requ
   const detail = readFileSync(new URL('../app/api/orders/[orderId]/route.js', import.meta.url), 'utf8');
   const update = readFileSync(new URL('../app/api/updateUser/route.js', import.meta.url), 'utf8');
   assert.doesNotMatch(orders, /searchParams\.get\(["']email["']\)/);
-  assert.match(orders, /email:\s*session\.user\.email/);
-  assert.match(detail, /ownsOrder\(session, order\)/);
+  assert.match(orders, /email:\s*actor\.email/);
+  assert.match(orders, /await authorizeRoles\(/);
+  assert.match(detail, /ownsOrder\(\{ user: actor \}, order\)/);
   assert.match(update, /email:\s*session\.user\.email/);
   assert.doesNotMatch(update, /\{\s*email,\s*name,\s*newEmail\s*\}/);
 });

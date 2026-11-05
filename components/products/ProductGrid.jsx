@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import ProductCard from "./ProductCard";
 import { useRouter } from "next/navigation";
-import { BAG_CATEGORIES } from "@/lib/product-categories.mjs";
+
 import { categoryHref } from "@/lib/category-navigation.mjs";
 
 export default function ProductGrid({ products: initialProducts, itemsPerPage = 12, category }) {
@@ -9,14 +9,22 @@ export default function ProductGrid({ products: initialProducts, itemsPerPage = 
   const [sortOrder, setSortOrder] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(category || "all");
   const router = useRouter();
+  const [categories,setCategories]=useState([]);
+  const [categoryError,setCategoryError]=useState('');
+  useEffect(()=>{let live=true;fetch('/api/categories').then(async res=>{if(!res.ok)throw new Error('Unable to load categories');return res.json();}).then(data=>{if(live)setCategories(data);}).catch(e=>{if(live)setCategoryError(e.message);});return()=>{live=false;};},[]);
 
   useEffect(() => { setCurrentPage(1); }, [initialProducts]);
-  useEffect(() => { setSelectedCategory(category || "all"); setCurrentPage(1); }, [category]);
+  useEffect(() => {
+    const matching=categories.find(c=>String(c.id)===String(category)||c.name===category);
+    const legacyId=category&&category!=='all'?initialProducts[0]?.category_id:null;
+    setSelectedCategory(category&&category!=='all'?String(matching?.id??legacyId??category):'all');
+    setCurrentPage(1);
+  }, [category,categories,initialProducts]);
 
   const products = useMemo(() => {
     const filtered = category || selectedCategory === "all"
       ? [...initialProducts]
-      : initialProducts.filter((product) => product.category === selectedCategory);
+      : initialProducts.filter((product) => String(product.category_id) === selectedCategory);
     if (sortOrder === "highToLow") filtered.sort((a, b) => b.price - a.price);
     if (sortOrder === "lowToHigh") filtered.sort((a, b) => a.price - b.price);
     return filtered;
@@ -37,7 +45,7 @@ export default function ProductGrid({ products: initialProducts, itemsPerPage = 
           <label htmlFor="category" className="mr-2 text-gray-700">ประเภทกระเป๋า:</label>
           <select id="category" value={selectedCategory} onChange={(e) => handleCategoryChange(e.target.value)} className="rounded-md bg-slate-50 p-1 text-gray-700">
             <option value="all">ทั้งหมด</option>
-            {BAG_CATEGORIES.map((item) => <option key={item} value={item}>{item}</option>)}
+            {categories.map((item) => <option key={item.id} value={item.id}>{item.parent_id?"↳ ":""}{item.name}</option>)}
           </select>
         </div>
         <div>
@@ -49,6 +57,7 @@ export default function ProductGrid({ products: initialProducts, itemsPerPage = 
           </select>
         </div>
       </div>
+      {categoryError&&<p role="alert">{categoryError}</p>}
       {products.length === 0 && <p className="text-gray-600">No products found.</p>}
       <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {currentProducts.map((product) => <ProductCard key={product._id} product={product} />)}

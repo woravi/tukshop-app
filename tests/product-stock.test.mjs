@@ -31,7 +31,7 @@ test('stock compare prevents stale updates before other changes', async () => {
   const calls=[];
   const db={execute:async (sql,params)=>{
     calls.push([sql,params]);
-    if (sql.startsWith('SELECT *')) return [[{id:1,stock:4}]];
+    if (sql.startsWith('SELECT * FROM products')) return [[{id:1,stock:4}]];
     if (sql.startsWith('UPDATE')) return [{affectedRows:0}];
     return [[]];
   }};

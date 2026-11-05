@@ -25,7 +25,24 @@ const Navbar = () => {
   const [adminPanelMob, setAdminPanelMob] = useState(false);
   const [productModile, setProductModile] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [category, setCategory] = useState("Rolex");
+  const [category, setCategory] = useState("all");
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/categories")
+      .then(response => {
+        if (!response.ok) throw new Error("Categories unavailable");
+        return response.json();
+      })
+      .then(rows => {
+        if (active && Array.isArray(rows)) setCategories(rows
+          .filter(row => row.active === true || row.active === 1)
+          .sort((a, b) => Number(a.sort_order) - Number(b.sort_order) || Number(a.id) - Number(b.id)));
+      })
+      .catch(() => { if (active) setCategories([]); });
+    return () => { active = false; };
+  }, [pathname]);
   const [searchTerm, setSearchTerm] = useState({ search: "" });
   const [resultArr, setResultArr] = useState([]);
 
@@ -61,7 +78,7 @@ const Navbar = () => {
     else setIsOpen(true);
   };
 
-  console.log(session?.user);
+
   
 
   const setProductModile1 = () => {
@@ -131,14 +148,12 @@ const Navbar = () => {
   return (
     <div ref={navbarRef} className="z-40">
       <div className="w-full bg-slate-50 h-14">
-        <div className="pl-2 pt-2 md:hidden">
-          {isOpen ? (
-            <X onClick={handleMenuOpen} size={40} />
-          ) : (
-            <Menu onClick={handleMenuOpen} size={40} />
-          )}
+        <div className="pl-2 pt-2 xl:hidden">
+          <button type="button" onClick={handleMenuOpen} aria-label={isOpen ? "ปิดเมนู" : "เปิดเมนู"} aria-expanded={isOpen} aria-controls="mobile-navigation">
+            {isOpen ? <X size={40} /> : <Menu size={40} />}
+          </button>
         </div>
-        <div className="hidden md:flex justify-between">
+        <div className="hidden xl:flex justify-between">
           <SearchDrawer
             searchOpen={searchOpen}
             searchTerm={searchTerm}
@@ -148,6 +163,7 @@ const Navbar = () => {
             resultArr={resultArr}
           />
           <ProductDrawer
+            categories={categories}
             productOpen={productOpen}
             setProductOpen={setProductOpen}
             category={category}
@@ -177,7 +193,8 @@ const Navbar = () => {
             setProductOpen={setProductOpen}
             setAdmin={setAdmin}
           />
-          <div className="z-40">
+          <div className="z-40 flex items-center gap-1" aria-label="ตะกร้าสินค้า">
+            <span className="text-xs text-slate-700">ตะกร้าสินค้า</span>
             <CartIcon />
           </div>
           <UserSection session={session} />
@@ -189,11 +206,14 @@ const Navbar = () => {
       >
         <AdminDrawer
           admin={admin}
+          session={session}
+          onNavigate={closeMenus}
           category={category}
           setCategory={setCategory}
         />
       </div>
       <MobileMenu
+        categories={categories}
         isOpen={isOpen}
         setMenuClose={setMenuClose}
         searchOpen={searchOpen}

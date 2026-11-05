@@ -2,13 +2,12 @@ import {NextResponse} from 'next/server'
 import dbConnect from '@/utils/config/dbConnection'
 import Order from '@/utils/models/Order'
 import {Product} from '@/utils/models/Product'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { authorizeRoles } from '@/lib/server-access'
 import { ownsOrder } from '@/lib/access.mjs'
 
 export async function GET(request, {params}){
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { status, actor } = await authorizeRoles(['owner', 'manager', 'kitchen', 'customer']);
+    if (status !== 200) return NextResponse.json({ error: "Unauthorized" }, { status });
     const {orderId} = await params;
 
     await dbConnect();
@@ -28,7 +27,7 @@ export async function GET(request, {params}){
            );
         }
 
-        if (!ownsOrder(session, order)) {
+        if (!ownsOrder({ user: actor }, order)) {
           return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
         return NextResponse.json(order)

@@ -9,6 +9,7 @@ import useCartStore from "@/store/cartStore";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Image from "next/image";
+import Link from "next/link";
 
 const ProductDetails = ({ product }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -83,13 +84,13 @@ const ProductDetails = ({ product }) => {
         </div>
         <p>{stockLabel(product)}</p>
         <div className="flex space-x-4 pt-4">
-          <Button
+          {product.has_variants?<Link className="p-3 bg-blue-600 text-white rounded" href={`/product/${product._id}`}>เลือกสี / ขนาด</Link>:<Button
             onClick={handleAddToCart}
             disabled={cartQuantity >= availableStock(product)}
             className="flex-1 bg-blue-600 hover:bg-blue-700"
           >
             <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
-          </Button>
+          </Button>}
           <Button
             onClick={handleToggleWishlist}
             variant="outline"

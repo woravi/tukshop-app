@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import connect from "@/utils/config/dbConnection";
 import { Product } from "@/utils/models/Product";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { adminAccessStatus } from "@/lib/access.mjs";
+import { authorizeRoles } from "@/lib/server-access";
 
 export async function GET(req) {
   await connect();
@@ -20,9 +18,8 @@ export async function GET(req) {
 }
 
 export async function PUT(req, { params }) {
-  const session = await getServerSession(authOptions);
-  const access = adminAccessStatus(session);
-  if (access !== 200) return NextResponse.json({ error: "Forbidden" }, { status: access });
+  const access = await authorizeRoles(["owner", "manager"]);
+  if (access.status !== 200) return NextResponse.json({ error: "Forbidden" }, { status: access.status });
   await connect();
   const { productId } = await params;
 

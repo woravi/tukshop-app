@@ -1,19 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { staffNavigation } from '../components/Navbar/navigation.mjs';
 
 const navbar = name => readFileSync(new URL(`../components/Navbar/${name}.jsx`, import.meta.url), 'utf8');
 
-test('admin desktop menu offers Dashboard as its first item linking to /dashboard', () => {
-  const source = navbar('AdminDrawer');
-  assert.match(source, /\["Dashboard", "Create Product", "Orders", "Products"\]/);
-  assert.match(source, /cat === "Dashboard"\s*\? "\/dashboard"/);
-  assert.ok(source.indexOf('admin &&') < source.indexOf('"Dashboard"'));
-});
-
-test('admin mobile menu offers Dashboard as its first item linking to /dashboard', () => {
-  const source = navbar('MobileMenu');
-  assert.match(source, /\["Dashboard", "Create Product", "Orders", "All Products"\]/);
-  assert.match(source, /cat === "Dashboard"\s*\? "\/dashboard"/);
-  assert.ok(source.indexOf('sessionData?.user?.admin') < source.indexOf('"Dashboard"'));
-});
+for (const [layout, component] of [['desktop', 'AdminDrawer'], ['mobile', 'MobileMenu']]) {
+  test(`admin ${layout} menu offers Dashboard as its first item linking to /dashboard`, () => {
+    const source = navbar(component);
+    assert.match(source, /staffNavigation\(session\?\.user\)/);
+    assert.match(source, /href=\{href\}/);
+    for (const role of ['owner', 'manager']) {
+      assert.deepEqual(staffNavigation({ role })[0], { href: '/dashboard', label: 'Dashboard' });
+    }
+    assert.deepEqual(staffNavigation({ role: 'customer', admin: true }), []);
+  });
+}

@@ -22,7 +22,7 @@ async function mountCategoryPage(category, get) {
   function ProductGrid() { return null; }
   function LoadingErrorComponent() { return null; }
   vm.runInNewContext(pageCode, {
-    module, exports: module.exports,
+    module, exports: module.exports, fetch:async()=>({ok:true,json:async()=>[]}),
     require(id) {
       if (id === 'next/navigation') return { useParams: () => ({ category }) };
       if (id === 'axios') return { get: url => { requests.push(url); return get(url); } };

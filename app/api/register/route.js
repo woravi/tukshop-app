@@ -25,7 +25,9 @@ export async function POST(request){
           name,
           email,
           password: hashedPassword,
-          profileImage: DEFAULT_PROFILE_IMAGE
+          profileImage: DEFAULT_PROFILE_IMAGE,
+          role: 'customer',
+          admin: false,
         });
 
         const saveUser = await newUser.save();

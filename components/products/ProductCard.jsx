@@ -39,6 +39,7 @@ export default function ProductCard({ product, onWishlistUpdate }) {
 
   const handleAddToCart = (e)=> {
     e.preventDefault();
+    if(product.has_variants || product.variants?.length){router.push(`/product/${product._id}`);return;}
     if (addItem(product)) toast.success("Product added to Cart!");
     else toast.error("Stock limit reached or unavailable");
   }
@@ -102,7 +103,7 @@ export default function ProductCard({ product, onWishlistUpdate }) {
               </button>
               <button
                 onClick={handleAddToCart}
-                disabled={cartQuantity >= availableStock(product)}
+                disabled={product.is_demo || cartQuantity >= availableStock(product)}
                 aria-label="Add to cart"
                 className="p-2 bg-white rounded-full hover:bg-blue-100 transition-colors duration-200"
               >
@@ -112,6 +113,8 @@ export default function ProductCard({ product, onWishlistUpdate }) {
           )}
         </div>
         <div className="p-4">
+          {product.is_demo&&<span className="text-xs bg-amber-100 p-1 rounded">สินค้าสาธิต</span>}
+          {product.has_variants&&<span className="text-xs block">เลือกสี / ขนาด</span>}
           <h2 className="text-sm font-medium text-gray-800 truncate">
             {product.name}
           </h2>

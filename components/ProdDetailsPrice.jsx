@@ -1,18 +1,23 @@
 import { availableStock, stockLabel } from "@/lib/stock.mjs";
 import { formatTHB } from "@/lib/currency.mjs";
-import React from "react";
+import React, {useState} from "react";
 import useCartStore from "@/store/cartStore";
 import { ShoppingCart, Heart } from "lucide-react";
 
 const ProdDetailsPrice = ({
-  product,
+  product:catalogProduct,
   averageRating,
   allReviews,
   isInWishlist,
   handleAddToCart,
   toggleWishlist,
 }) => {
-  const cartQuantity = useCartStore((state) => state.items.find((item) => item._id === product._id)?.quantity || 0);
+  const [color,setColor]=useState(''),[size,setSize]=useState('');
+  const variants=catalogProduct.variants||[];
+  const hasVariants=catalogProduct.has_variants||variants.length>0;
+  const selected=variants.find(v=>v.color===color&&v.size===size&&v.active);
+  const product=hasVariants?{...catalogProduct,price:selected?.price??catalogProduct.price,stock:selected?.stock??0}:catalogProduct;
+  const cartQuantity=useCartStore(state=>state.items.find(i=>i._id===product._id&&String(i.variant_id??'')===String(selected?.id??''))?.quantity||0);
   return (
     <div className="md:w-1/2 px-4 sm:px-8 pb-8 sm:pt-20">
       <div className="relative overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 rounded-t-xl shadow-lg p-4 sm:p-8 mb-8 hover:shadow-2xl">
@@ -92,9 +97,11 @@ const ProdDetailsPrice = ({
         </div>
       </div>
 
+      {catalogProduct.is_demo&&<p role="status" className="p-3 bg-amber-100 rounded">สินค้าสาธิต — ไม่จำหน่าย</p>}
+      {hasVariants&&<fieldset className="space-y-3 mb-4"><legend>เลือกสีและขนาด</legend><label className="block">สี<select className="border rounded p-2 ml-2" value={color} onChange={e=>{setColor(e.target.value);setSize('');}}><option value="">เลือกสี</option>{[...new Set(variants.map(v=>v.color))].map(c=><option key={c} value={c}>{c}</option>)}</select></label><label className="block">ขนาด<select className="border rounded p-2 ml-2" disabled={!color} value={size} onChange={e=>setSize(e.target.value)}><option value="">เลือกขนาด</option>{[...new Set(variants.filter(v=>v.color===color).map(v=>v.size))].map(s=><option key={s} value={s}>{s}</option>)}</select></label>{selected&&<p>SKU: {selected.sku} · {stockLabel(product)}</p>}</fieldset>}
       <div className="flex space-x-4">
         <button
-          onClick={handleAddToCart}
+          onClick={()=>handleAddToCart(selected?.id)}
           disabled={cartQuantity >= availableStock(product)}
           className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center justify-center"
         >

@@ -4,6 +4,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcryptjs from "bcryptjs";
+import { isAdminRole } from "@/lib/role-authority.mjs";
 
 const DEFAULT_PROFILE_IMAGE =
   "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
@@ -15,6 +16,8 @@ async function createUser(email, password, name) {
     password: hashedPassword,
     name,
     profileImage: DEFAULT_PROFILE_IMAGE,
+    role: 'customer',
+    admin: false,
   });
   return await newUser.save();
 }
@@ -81,6 +84,8 @@ export const authOptions = {
               email,
               name,
               profileImage: image || DEFAULT_PROFILE_IMAGE,
+              role: 'customer',
+              admin: false,
             });
             foundUser = await newUser.save();
           } else if (
@@ -95,10 +100,9 @@ export const authOptions = {
           user.email = foundUser.email;
           user.name = foundUser.name;
           user.notificationPreferences = foundUser.notificationPreferences;
-          user.admin = foundUser.admin;
+          user.role = foundUser.role;
+          user.admin = isAdminRole(foundUser.role);
           user.profileImage = foundUser.profileImage;
-
-          console.log("User that logged in:", user);
 
           return true;
         } catch (error) {
@@ -114,25 +118,33 @@ export const authOptions = {
         token.email = user.email;
         token.name = user.name;
         token.notificationPreferences = user.notificationPreferences;
-        token.admin = user.admin;
+        token.role = user.role;
+        token.admin = isAdminRole(user.role);
         token.profileImage = user.profileImage;
       }
-      if (trigger === "update" && session) {
-        token.name = session.user.name;
-        token.email = session.user.email;
-        token.profileImage = session.user.profileImage || DEFAULT_PROFILE_IMAGE;
-      }
+      // Client update payloads are not an identity or authorization source.
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user._id = token._id.toString();
-        session.user.email = token.email;
-        session.user.name = token.name;
-        session.user.notificationPreferences = token.notificationPreferences;
-        session.user.admin = token.admin;
-        session.user.profileImage = token.profileImage;
+      if (!token?._id || !/^[1-9]\d*$/.test(String(token._id))) {
+        session.user = null;
+        return session;
       }
+      await connect();
+      const currentUser = await User.findById(token._id);
+      if (!currentUser) {
+        session.user = null;
+        return session;
+      }
+      session.user = {
+        _id: String(currentUser._id),
+        email: currentUser.email,
+        name: currentUser.name,
+        notificationPreferences: currentUser.notificationPreferences,
+        role: currentUser.role,
+        admin: isAdminRole(currentUser.role),
+        profileImage: currentUser.profileImage || DEFAULT_PROFILE_IMAGE,
+      };
       return session;
     },
   },

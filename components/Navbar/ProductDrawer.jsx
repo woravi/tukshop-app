@@ -1,9 +1,10 @@
 import React from "react";
 import Link from "next/link";
-import { BAG_CATEGORIES } from "@/lib/product-categories.mjs";
+
 import { categoryHref } from "@/lib/category-navigation.mjs";
 
 const ProductDrawer = ({
+  categories = [],
   productOpen,
   setProductOpen,
   category,
@@ -26,22 +27,22 @@ const ProductDrawer = ({
             </div>
             <div>
               <ul>
-                {["ทั้งหมด", ...BAG_CATEGORIES].map((cat) => (
+                {[{ id: "all", name: "สินค้าทั้งหมด" }, ...categories].map((cat) => (
                   <li
-                    key={cat}
-                    onMouseEnter={() => setCategory(cat)}
+                    key={cat.id}
+                    onMouseEnter={() => setCategory(cat.id)}
                     className={`text-lg w-[80%] cursor-pointer py-[5px] ml-4 ${
-                      category === cat
+                      category === cat.id
                         ? " bg-sky-400/30 rounded-md fadeRight"
                         : null
                     }`}
                   >
                     <Link
-                      href={categoryHref(cat === "ทั้งหมด" ? "all" : cat)}
+                      href={categoryHref(cat.id)}
                       onClick={() => setProductOpen(false)}
                       className="pl-2 text-lg"
                     >
-                      {cat}
+                      {cat.name}
                     </Link>
                   </li>
                 ))}

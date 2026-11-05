@@ -88,8 +88,8 @@ export default function ProductPage() {
     });
   };
 
-  const handleAddToCart = () => {
-    if (addItem(product)) toast.success("Added item to cart");
+  const handleAddToCart = (variantId) => {
+    if (addItem(product,variantId)) toast.success("Added item to cart");
     else toast.error("Stock limit reached or unavailable");
   };
 

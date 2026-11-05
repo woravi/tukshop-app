@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
-import { BAG_CATEGORIES } from "@/lib/product-categories.mjs";
+import CategorySelect from "@/components/CategorySelect";
 
 const Create = () => {
   const {data: session} = useSession();
@@ -21,7 +21,7 @@ const Create = () => {
 
   const [product, setProduct] = useState({
     name: "", description: "", condition: "", brand: "", category: "",
-    material: "", stock: 0, price: "", originalPrice: "",
+    material: "", stock: 0, price: "", originalPrice: "", is_demo:false, category_id:null,
   });
 
   const handleChange = (e)=> {
@@ -92,7 +92,7 @@ const Create = () => {
             };
             const productRes = await axios.post("/api/products", productData);
             if(productRes.status === 200 || productRes.status === 201){
-                router.push("/")
+                router.push(`/editProduct/${productRes.data.savedProduct._id}`)
             }
         } catch (error) {
             setImageError(error.response?.data?.error || "Product could not be saved. Please try again.");
@@ -109,6 +109,7 @@ const Create = () => {
           </h1>
         </div>
         <form onSubmit={handleSubmit} className="px-8 py-10 space-y-8">
+          <label className="block"><input name="is_demo" type="checkbox" checked={Boolean(product.is_demo)} onChange={e=>setProduct(prev=>({...prev,is_demo:e.target.checked}))}/> สินค้าสาธิต — ไม่อนุญาตให้เพิ่มลงตะกร้า</label>
           <div>
             <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
             <Input type="number" id="stock" name="stock" min="0" max="4294967295" step="1" required value={product.stock} onChange={handleChange} />
@@ -178,12 +179,7 @@ const Create = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div><label htmlFor="category">ประเภทกระเป๋า</label>
-              <select id="category" name="category" value={product.category ?? ""} onChange={handleChange} className="block w-full border rounded-md p-2">
-                <option value="">ไม่ระบุ</option>
-                {BAG_CATEGORIES.map(category => <option key={category} value={category}>{category}</option>)}
-              </select>
-            </div>
+            <CategorySelect value={product.category_id} onChange={category=>setProduct(prev=>({...prev,category_id:category?.id??null,category:category?.name??null}))}/>
             <div><label htmlFor="material">วัสดุ</label><Input id="material" name="material" value={product.material ?? ""} onChange={handleChange} /></div>
             <div><label htmlFor="condition">สภาพ</label><Input id="condition" name="condition" value={product.condition ?? ""} onChange={handleChange} /></div>
           </div>

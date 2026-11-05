@@ -1,4 +1,5 @@
-import { BAG_CATEGORIES } from "@/lib/product-categories.mjs";
+
+import { staffNavigation } from "./navigation.mjs";
 import { categoryHref } from "@/lib/category-navigation.mjs";
 import { formatTHB } from "@/lib/currency.mjs";
 import React, { useEffect } from "react";
@@ -7,10 +8,11 @@ import { Input } from "../ui/input";
 import CartIconMobile from "../CartIconMobile";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { Star, ChevronRight, X } from "lucide-react";
 
 const MobileMenu = ({
+  categories = [],
   isOpen,
   setMenuClose,
   searchOpen,
@@ -27,7 +29,7 @@ const MobileMenu = ({
   user,
   adminPanelMob,
 }) => {
-  const { data: sessionData } = useSession();
+  const staffLinks = staffNavigation(session?.user);
 
   const handleSearchClick = () => {
     setSearchOpen(!searchOpen);
@@ -46,6 +48,7 @@ const MobileMenu = ({
 
   return (
     <div
+      id="mobile-navigation"
       className={`dots w-full h-full flex justify-between ${
         isOpen ? "flex" : "hidden"
       } fixed top-0 left-0 z-50 bg-white`}
@@ -203,6 +206,8 @@ const MobileMenu = ({
         ) : (
           <>
             <ul className="space-y-4 p-4">
+              <li><Link href="/food" onClick={setMenuClose} className="block px-4 py-2 text-lg">ร้านอาหาร</Link></li>
+              <li><Link href="/food/cart" onClick={setMenuClose} className="block px-4 py-2 text-lg">ตะกร้าอาหาร</Link></li>
               <li>
                 <Button onClick={setMenuClose} variant="buttonUnderline">
                   <Link href="/">Home</Link>
@@ -216,25 +221,25 @@ const MobileMenu = ({
                   }}
                   variant="buttonUnderline"
                 >
-                  Products
+                  ร้านสินค้า
                 </Button>
               </li>
               {productModile && (
                 <div className="ml-4 ">
-                  {["ทั้งหมด", ...BAG_CATEGORIES].map((cat) => (
-                    <li key={cat}>
+                  {[{ id: "all", name: "สินค้าทั้งหมด" }, ...categories].map((cat) => (
+                    <li key={cat.id}>
                       <Button onClick={setMenuClose} variant="buttonMenuMobile">
                         <Link
-                          href={categoryHref(cat === "ทั้งหมด" ? "all" : cat)}
+                          href={categoryHref(cat.id)}
                         >
-                          {cat}
+                          {cat.name}
                         </Link>
                       </Button>
                     </li>
                   ))}
                 </div>
               )}
-              {sessionData?.user?.admin && (
+              {staffLinks.length > 0 && (
                 <>
                   <li>
                     <Button
@@ -245,35 +250,18 @@ const MobileMenu = ({
                       }}
                       variant="buttonUnderline"
                     >
-                      Admin Panel
+                      จัดการร้าน
                     </Button>
                   </li>
                   {adminPanelMob && (
                     <div className="ml-4">
-                      {["Dashboard", "Create Product", "Orders", "All Products"].map(
-                        (cat) => (
-                          <li key={cat}>
-                            <Button
-                              onClick={setMenuClose}
-                              variant="buttonMenuMobile"
-                            >
-                              <Link
-                                href={
-                                  cat === "Dashboard"
-                                    ? "/dashboard"
-                                    : cat === "Create Product"
-                                    ? "/create"
-                                    : cat === "All Products"
-                                    ? "/products"
-                                    : `/${cat.toLowerCase().replace(" ", "")}`
-                                }
-                              >
-                                {cat}
-                              </Link>
-                            </Button>
-                          </li>
-                        )
-                      )}
+                      {staffLinks.map(({ href, label }) => (
+                        <li key={href}>
+                          <Button onClick={setMenuClose} variant="buttonMenuMobile">
+                            <Link href={href} onClick={setMenuClose}>{label}</Link>
+                          </Button>
+                        </li>
+                      ))}
                     </div>
                   )}
                 </>
@@ -293,7 +281,8 @@ const MobileMenu = ({
                   <Link href="/about">About Us</Link>
                 </Button>
               </li>
-              <li className="mt-4">
+              <li className="mt-4" aria-label="ตะกร้าสินค้า">
+                <p className="px-4 text-sm text-slate-600">ตะกร้าสินค้า</p>
                 <CartIconMobile />
               </li>
             </ul>

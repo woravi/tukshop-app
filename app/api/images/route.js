@@ -1,6 +1,4 @@
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]/route';
-import { adminAccessStatus } from '@/lib/access.mjs';
+import { authorizeRoles } from '@/lib/server-access';
 import { getPool } from '@/utils/config/dbConnection';
 import { resizeImage, MAX_UPLOAD_BYTES } from '@/lib/product-image.mjs';
 import { NextResponse } from 'next/server';
@@ -24,8 +22,7 @@ async function boundedFormData(req) {
   return new Request('http://localhost/', {method:'POST',headers:{'content-type':req.headers.get('content-type') || ''},body:Buffer.concat(chunks)}).formData();
 }
 export async function POST(req) {
-  const session = await getServerSession(authOptions);
-  const access = adminAccessStatus(session);
+  const { status: access } = await authorizeRoles(['owner', 'manager']);
   if (access !== 200) return NextResponse.json({error:'Forbidden'},{status:access});
   try {
     const form = await boundedFormData(req);

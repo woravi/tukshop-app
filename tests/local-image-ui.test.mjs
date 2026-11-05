@@ -36,6 +36,8 @@ function mount(page, axios = {}) {
     axios,
     'react-hot-toast': { __esModule: true, default: { error: message => errors.push(message), success() {} }, Toaster: 'Toaster' },
     'next/image': 'Image',
+    '@/components/CategorySelect':'CategorySelect',
+    '@/components/VariantManager':'VariantManager',
     '@/components/ui/button': { Button: 'Button' },
     '@/components/ui/input': { Input: 'Input' },
     '@/components/ui/textarea': { Textarea: 'Textarea' },

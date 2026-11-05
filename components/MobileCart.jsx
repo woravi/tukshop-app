@@ -1,3 +1,5 @@
+import useCartRefresh from "./useCartRefresh";
+import { cartLineId } from "@/store/cartStore";
 import { availableStock, stockLabel } from "@/lib/stock.mjs";
 import { formatTHB } from "@/lib/currency.mjs";
 import React, { useEffect, useState, useRef } from "react";
@@ -8,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const MobileCart = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const refreshError=useCartRefresh(isOpen);
   const {
     items,
     removeItem,
@@ -33,9 +36,7 @@ const MobileCart = ({ isOpen, onClose }) => {
     };
   }, [isOpen]);
 
-  const handleCheckout = () => {
-    window.location.href = "/checkout";
-  };
+
 
   const handleQuantityChange = (itemId, newQuantity) => {
     if (newQuantity < 1) {
@@ -72,7 +73,8 @@ const MobileCart = ({ isOpen, onClose }) => {
               </button>
             </div>
 
-            {items.length === 0 ? (
+            {refreshError&&<p role="alert">{refreshError}</p>}
+      {items.length === 0 ? (
               <div className="text-center py-12 flex-grow flex flex-col justify-center">
                 <ShoppingCart className="mx-auto h-16 w-16 text-gray-400" />
                 <p className="mt-4 text-lg text-gray-500">Your cart is empty</p>
@@ -82,7 +84,7 @@ const MobileCart = ({ isOpen, onClose }) => {
                 <div className="space-y-4 mb-6 flex-grow overflow-y-auto">
                   {items.map((item) => (
                     <motion.div
-                      key={item._id}
+                      key={cartLineId(item)}
                       layout
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -90,7 +92,7 @@ const MobileCart = ({ isOpen, onClose }) => {
                       className="flex items-center p-3 border border-gray-200 rounded-lg bg-gray-50"
                     >
                       <Image
-                        src={item?.images[0]}
+                        src={item?.images?.[0] || "/product-placeholder.svg"}
                         width={60}
                         height={60}
                         className="rounded-md object-cover mr-3"
@@ -101,14 +103,14 @@ const MobileCart = ({ isOpen, onClose }) => {
                           {item.name}
                         </h3>
                         <p className="text-xs text-gray-500">
-                          {item?.brand} - {item?.material}
+                          {item?.brand} - {item?.material} {item.color} / {item.size} {item.sku}
                         </p>
                         <p className="text-xs text-gray-500">{stockLabel(item)}</p>
                     <div className="flex items-center mt-2">
                           <button
                             onClick={() =>
                               handleQuantityChange(
-                                item._id,
+                                cartLineId(item),
                                 (item.quantity || 1) - 1
                               )
                             }
@@ -122,7 +124,7 @@ const MobileCart = ({ isOpen, onClose }) => {
                           <button
                             onClick={() =>
                               handleQuantityChange(
-                                item._id,
+                                cartLineId(item),
                                 (item.quantity || 1) + 1
                               )
                             }
@@ -139,7 +141,7 @@ const MobileCart = ({ isOpen, onClose }) => {
                           {formatTHB(item.price * (item.quantity || 1))}
                         </p>
                         <button
-                          onClick={() => removeItem(item._id)}
+                          onClick={() => removeItem(cartLineId(item))}
                           className="mt-2 p-1 text-red-500 hover:bg-red-100 rounded-full transition-colors duration-150"
                         >
                           <Trash2 size={16} />
@@ -168,10 +170,10 @@ const MobileCart = ({ isOpen, onClose }) => {
                 </div>
                 <div className="space-y-3">
                   <button
-                    onClick={handleCheckout}
+                    disabled aria-disabled="true"
                     className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200"
                   >
-                    Proceed to Checkout
+                    ร้านทดลอง — ยังไม่เปิดชำระเงิน
                   </button>
                   <button
                     onClick={clearCart}

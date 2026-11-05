@@ -30,7 +30,7 @@ test('product search only filters columns present in SQL schema', () => {
 test('product mutations use session ownership and reject external image URLs', () => {
   const create=readFileSync(new URL('../app/api/products/route.js',import.meta.url),'utf8');
   const update=readFileSync(new URL('../app/api/product/[productId]/route.js',import.meta.url),'utf8');
-  assert.match(create,/user:\s*session\.user\._id/);
+  assert.match(create,/user:\s*access\.actor\.id/);
   assert.match(create,/validateImageUrls\(images\)/);
   assert.match(update,/validateImageUrls\(body\.images\)/);
 });
@@ -47,7 +47,8 @@ test('review routes no longer depend on mongoose object IDs', () => {
 test('image API requires admin before reading uploads and delivers binary from SQL', () => {
   const post = readFileSync(new URL('../app/api/images/route.js',import.meta.url),'utf8');
   const get = readFileSync(new URL('../app/api/images/[id]/route.js',import.meta.url),'utf8');
-  assert.ok(post.indexOf('adminAccessStatus(session)') < post.indexOf('await boundedFormData(req)'));
+  const authorization = post.indexOf("await authorizeRoles(['owner', 'manager'])");
+  assert.ok(authorization >= 0 && authorization < post.indexOf('await boundedFormData(req)'));
   assert.match(post, /resizeImage/);
   assert.match(post, /INSERT INTO product_images/);
   assert.match(get, /SELECT mime,data/);

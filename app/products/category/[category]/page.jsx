@@ -11,6 +11,8 @@ export default function BagCategoryPage() {
   const { category: categoryParam } = useParams();
   const category = normalizeCategoryParam(categoryParam);
   const [products, setProducts] = useState([]);
+  const [categoryName,setCategoryName]=useState('');
+  useEffect(()=>{let live=true;fetch('/api/categories').then(r=>r.ok?r.json():[]).then(rows=>{if(live)setCategoryName(rows.find(c=>String(c.id)===category||c.name===category)?.name||'');}).catch(()=>{});return()=>{live=false;};},[category]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -32,7 +34,7 @@ export default function BagCategoryPage() {
   if (loading || error) return <LoadingErrorComponent loading={loading} error={error} />;
   return (
     <main className="container mx-auto px-4 py-8 min-h-screen">
-      <h1 className="text-2xl font-bold text-slate-700 mb-4">{category === "all" ? "กระเป๋าทั้งหมด" : category}</h1>
+      <h1 className="text-2xl font-bold text-slate-700 mb-4">{category === "all" ? "กระเป๋าทั้งหมด" : categoryName || products[0]?.category || category}</h1>
       <p className="text-slate-700">สินค้าทั้งหมด: {products.length}</p>
       <ProductGrid products={products} category={category} />
     </main>

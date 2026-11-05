@@ -2,15 +2,12 @@ import { NextResponse } from "next/server";
 import connect from "@/utils/config/dbConnection";
 import Order from "@/utils/models/Order";
 import { Product } from "@/utils/models/Product";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { adminAccessStatus } from "@/lib/access.mjs";
+import { authorizeRoles } from "@/lib/server-access";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req) {
-  const session = await getServerSession(authOptions);
-  const access = adminAccessStatus(session);
+  const { status: access } = await authorizeRoles(['owner', 'manager']);
   if (access !== 200) return NextResponse.json({ error: "Forbidden" }, { status: access });
   await connect();
 
@@ -49,8 +46,7 @@ export async function GET(req) {
 }
 
 export async function PUT(req) {
-  const session = await getServerSession(authOptions);
-  const access = adminAccessStatus(session);
+  const { status: access } = await authorizeRoles(['owner', 'manager']);
   if (access !== 200) return NextResponse.json({ error: "Forbidden" }, { status: access });
   await connect();
 

@@ -127,7 +127,7 @@ const Wishlist = () => {
                 >
                   <Trash className="mr-2 h-4 w-4" /> Remove
                 </Button>
-                <Button
+                {item.has_variants?<Link className="p-3 bg-blue-600 text-white rounded" href={`/product/${item._id}`}>เลือกสี / ขนาด</Link>:<Button
                   variant="default"
                   size="sm"
                   className="flex-1 sm:flex-none bg-[#535C91] text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:bg-[#3a4063] focus:outline-none flex items-center justify-center"
@@ -135,7 +135,7 @@ const Wishlist = () => {
                   disabled={availableStock(item) === 0}
                 >
                   <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
-                </Button>
+                </Button>}
               </div>
             </div>
           ))

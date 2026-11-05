@@ -1,3 +1,5 @@
+import useCartRefresh from "./useCartRefresh";
+import { cartLineId } from "@/store/cartStore";
 import { availableStock, stockLabel } from "@/lib/stock.mjs";
 import { formatTHB } from "@/lib/currency.mjs";
 import React, { useEffect, useState } from "react";
@@ -8,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const Cart = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const refreshError=useCartRefresh();
 
   const {
     items,
@@ -38,9 +41,7 @@ const Cart = () => {
     }
   };
 
-  const handleCheckout = () => {
-    window.location.href = "/checkout";
-  };
+
 
   if (isLoading) {
     return (
@@ -55,6 +56,7 @@ const Cart = () => {
       <h2 className="text-2xl font-bold text-center py-4 text-gray-800">
         Your Cart
       </h2>
+      {refreshError&&<p role="alert">{refreshError}</p>}
       {items.length === 0 ? (
         <div className="text-center py-6 mt-12 pb-32">
           <ShoppingCart className="mx-auto h-12 w-12 text-gray-400" />
@@ -66,7 +68,7 @@ const Cart = () => {
             <AnimatePresence>
               {items.map((item) => (
                 <motion.div
-                  key={item._id}
+                  key={cartLineId(item)}
                   layout
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -74,7 +76,7 @@ const Cart = () => {
                   className="flex items-center p-3 border border-gray-200 rounded-lg bg-gray-50"
                 >
                   <Image
-                    src={item?.images[0]}
+                    src={item?.images?.[0] || "/product-placeholder.svg"}
                     width={60}
                     height={60}
                     className="rounded-md object-cover mr-3"
@@ -86,13 +88,13 @@ const Cart = () => {
                       {item.name}
                     </h3>
                     <p className="text-xs text-gray-500">
-                      {item?.brand} - {item?.material}
+                      {item?.brand} - {item?.material} {item.color} / {item.size} {item.sku}
                     </p>
                     <p className="text-xs text-gray-500">{stockLabel(item)}</p>
                     <div className="flex items-center mt-1">
                       <button
                         onClick={(e) =>
-                          handleQuantityChange(e, item._id, item.quantity - 1)
+                          handleQuantityChange(e, cartLineId(item), item.quantity - 1)
                         }
                         className="p-1 bg-gray-200 rounded-full"
                       >
@@ -101,7 +103,7 @@ const Cart = () => {
                       <span className="mx-2 text-sm">{item.quantity}</span>
                       <button
                         onClick={(e) =>
-                          handleQuantityChange(e, item._id, item.quantity + 1)
+                          handleQuantityChange(e, cartLineId(item), item.quantity + 1)
                         }
                         disabled={(item.quantity || 1) >= availableStock(item)}
                         aria-label="Increase quantity"
@@ -116,7 +118,7 @@ const Cart = () => {
                       {formatTHB(item.price * item.quantity)}
                     </p>
                     <button
-                      onClick={(e) => handleRemove(e, item._id)}
+                      onClick={(e) => handleRemove(e, cartLineId(item))}
                       className="mt-2 p-1 text-red-500 hover:bg-red-100 rounded-full transition-colors duration-150"
                     >
                       <Trash2 size={16} />
@@ -144,10 +146,10 @@ const Cart = () => {
           </div>
           <div className="space-y-3">
             <button
-              onClick={handleCheckout}
+              disabled aria-disabled="true"
               className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold  hover:bg-blue-700 transition-colors duration-200"
             >
-              Proceed to Checkout
+              ร้านทดลอง — ยังไม่เปิดชำระเงิน
             </button>
             <button
               onClick={clearCart}
