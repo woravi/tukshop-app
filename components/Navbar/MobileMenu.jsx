@@ -1,3 +1,5 @@
+import { BAG_CATEGORIES } from "@/lib/product-categories.mjs";
+import { categoryHref } from "@/lib/category-navigation.mjs";
 import { formatTHB } from "@/lib/currency.mjs";
 import React, { useEffect } from "react";
 import Link from "next/link";
@@ -60,7 +62,7 @@ const MobileMenu = ({
             <div className="bg-white pt-2">
               <div className="flex justify-between">
                 <h2 className="text-2xl text-slate-800 font-bold mb-4">
-                  Search Watches
+                  Search Products
                 </h2>
                 <Button
                   onClick={handleSearchClick}
@@ -78,7 +80,7 @@ const MobileMenu = ({
                   id="search"
                   value={searchTerm.search}
                   onChange={handleChange}
-                  placeholder="Search for watches..."
+                  placeholder="Search for products..."
                   className="w-full pl-10 pr-4 py-2 rounded-full text-lg"
                   autoComplete="off"
                 />
@@ -163,7 +165,7 @@ const MobileMenu = ({
                           </span>
                         </div>
                         <p className="text-xs text-gray-500 mt-1">
-                          {prod.movement} | {prod.casematerial} | {prod.glass}
+                          {prod.category}
                         </p>
                         <Link
                           onClick={() => handleSearchClose()}
@@ -219,22 +221,11 @@ const MobileMenu = ({
               </li>
               {productModile && (
                 <div className="ml-4 ">
-                  {[
-                    "Rolex",
-                    "Patek Philipe",
-                    "Audemars Piguet",
-                    "Richard Mille",
-                    "Omega",
-                    "IWC",
-                    "Cartier",
-                    "Tudor",
-                  ].map((cat) => (
+                  {["ทั้งหมด", ...BAG_CATEGORIES].map((cat) => (
                     <li key={cat}>
                       <Button onClick={setMenuClose} variant="buttonMenuMobile">
                         <Link
-                          href={`/products/brand/${cat
-                            .toLowerCase()
-                            .replace(" ", "")}`}
+                          href={categoryHref(cat === "ทั้งหมด" ? "all" : cat)}
                         >
                           {cat}
                         </Link>

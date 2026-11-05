@@ -11,7 +11,7 @@ const NavbarLinks = ({ session, setProductOpen, setAdmin }) => {
           onClick={() => setProductOpen((prev) => !prev)}
         >
           <span className="text-lg no-underline transition-all duration-300 hover:text-sky-400/90">
-            Watch Models
+            ประเภทกระเป๋า
           </span>
         </Button>
       </li>

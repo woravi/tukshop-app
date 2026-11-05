@@ -63,10 +63,10 @@ export default function CategoryPage() {
     <div className="flex flex-col min-h-screen">
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-slate-700 mb-4 uppercase">
-          {brand} Watches
+          {brand} Products
         </h1>
         <p className="mb-6 text-slate-700">
-          Total Watches Available: {products.length}
+          Total Products Available: {products.length}
         </p>
         <ProductGrid
           products={products}

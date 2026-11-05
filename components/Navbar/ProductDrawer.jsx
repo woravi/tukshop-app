@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
-import { Input } from "../ui/input";
+import { BAG_CATEGORIES } from "@/lib/product-categories.mjs";
+import { categoryHref } from "@/lib/category-navigation.mjs";
 
 const ProductDrawer = ({
   productOpen,
@@ -11,7 +12,7 @@ const ProductDrawer = ({
   return (
     productOpen && (
       <div
-        className="h-[42%] w-[40%] dots bg-white z-20 absolute mt-[59px] ml-[10%]"
+        className="max-h-[75vh] overflow-y-auto w-[40%] dots bg-white z-20 absolute mt-[59px] ml-[10%]"
         onMouseLeave={() => setProductOpen(false)}
         onMouseEnter={() => setProductOpen(true)}
       >
@@ -25,16 +26,7 @@ const ProductDrawer = ({
             </div>
             <div>
               <ul>
-                {[
-                  "Rolex",
-                  "Patek Philipe",
-                  "Audemars Piguet",
-                  "Richar Mille",
-                  "Omega",
-                  "IWC",
-                  "Cartier",
-                  "Tudor",
-                ].map((cat) => (
+                {["ทั้งหมด", ...BAG_CATEGORIES].map((cat) => (
                   <li
                     key={cat}
                     onMouseEnter={() => setCategory(cat)}
@@ -45,9 +37,8 @@ const ProductDrawer = ({
                     }`}
                   >
                     <Link
-                      href={`/products/brand/${cat
-                        .toLowerCase()
-                        .replace(" ", "")}`}
+                      href={categoryHref(cat === "ทั้งหมด" ? "all" : cat)}
+                      onClick={() => setProductOpen(false)}
                       className="pl-2 text-lg"
                     >
                       {cat}
@@ -55,18 +46,6 @@ const ProductDrawer = ({
                   </li>
                 ))}
               </ul>
-            </div>
-            <div>
-              <div className="bg-gray-400 h-[2px] w-full"></div>
-              <div className="bg-gray-50/60 h-30 w-full flex flex-col text-center justify-center items-center">
-                <p className="text-2xl  mt-4">Subscribe to our Newsletter!</p>
-                <div className="w-[50%] flex justify-center items-center">
-                  <Input
-                    placeholder="Your E-Mail"
-                    className="text-center w-full mb-6"
-                  />
-                </div>
-              </div>
             </div>
           </div>
           <div className="bg-gray-400 h-[88%] mt-[2%] w-[2px]"></div>

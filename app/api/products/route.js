@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { adminAccessStatus } from "@/lib/access.mjs";
 import { validateImageUrls, validateStock } from "@/lib/mysql-model.mjs";
+import { validateCategory } from "@/lib/product-categories.mjs";
 
 export async function GET(req, res) {
   await connect();
@@ -34,6 +35,7 @@ export async function POST(req, res) {
     description,
     images,
     brand,
+    category = null,
     material,
     originalPrice,
     bracelet,
@@ -50,6 +52,7 @@ export async function POST(req, res) {
     water,
   } = body;
 
+  try { validateCategory(category); } catch { return NextResponse.json({error:"Invalid category"},{status:400}); }
   try { validateStock(stock); } catch { return NextResponse.json({error:"Invalid stock"},{status:400}); }
   try { validateImageUrls(images); } catch {
     return NextResponse.json({error:'Invalid product images'},{status:400});
@@ -61,6 +64,7 @@ export async function POST(req, res) {
     description,
     images,
     brand,
+    category,
     material,
     originalPrice,
     bracelet,

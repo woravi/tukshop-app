@@ -73,8 +73,8 @@ const ProductDetails = ({ product }) => {
             {product.material || "N/A"}
           </p>
           <p>
-            <span className="font-semibold">Bracelet:</span>{" "}
-            {product.bracelet || "N/A"}
+            <span className="font-semibold">Category:</span>{" "}
+            {product.category || "N/A"}
           </p>
           <p>
             <span className="font-semibold">Condition:</span>{" "}

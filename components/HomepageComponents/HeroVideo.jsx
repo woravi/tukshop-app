@@ -19,7 +19,7 @@ export default function ShopHero() {
         <p className="mb-8 text-lg text-stone-200 md:text-xl">
           เลือกชมสินค้าในแบบที่เป็นคุณ
         </p>
-        <Link href="/products" className="inline-flex min-h-12 items-center rounded-full bg-white px-7 py-3 font-semibold text-stone-900 hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+        <Link href="/products/category/all" className="inline-flex min-h-12 items-center rounded-full bg-white px-7 py-3 font-semibold text-stone-900 hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
           ดูสินค้าทั้งหมด
         </Link>
       </div>

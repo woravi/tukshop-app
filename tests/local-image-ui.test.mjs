@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { File } from 'node:buffer';
 import { createRequire } from 'node:module';
+import { BAG_CATEGORIES } from '../lib/product-categories.mjs';
 
 const require = createRequire(import.meta.url);
 const { transformSync } = require('next/dist/build/swc');
@@ -28,6 +29,7 @@ function mount(page, axios = {}) {
     useEffect(fn) { effects.push(fn); },
   };
   const stubs = {
+    '@/lib/product-categories.mjs': { BAG_CATEGORIES },
     react: { ...React, default: React },
     'next-auth/react': { useSession: () => ({ data: { user: { _id: 'admin' } } }) },
     'next/navigation': { useRouter: () => ({ push: url => pushes.push(url) }), useParams: () => ({ productId: 'product-1' }) },

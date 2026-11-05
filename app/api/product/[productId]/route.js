@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { adminAccessStatus } from "@/lib/access.mjs";
 import { validateImageUrls, validateStock } from "@/lib/mysql-model.mjs";
+import { validateCategory } from "@/lib/product-categories.mjs";
 
 export async function GET(req, { params }) {
   await connect();
@@ -31,6 +32,9 @@ export async function PUT(req, { params }) {
   await connect();
   const { productId } = await params;
   const body = await req.json();
+  if ('category' in body) {
+    try { validateCategory(body.category); } catch { return NextResponse.json({error:"Invalid category"},{status:400}); }
+  }
 
   try {
     if ('stock' in body) {

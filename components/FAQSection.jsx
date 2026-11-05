@@ -1,87 +1,59 @@
+"use client";
+
 import { useState } from "react";
-import { motion } from "framer-motion";
+import Link from "next/link";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-const FAQSection = () => {
+const faqs = [
+  {
+    question: "จะดูรายละเอียดกระเป๋าเพิ่มเติมได้ที่ไหน?",
+    answer: "ตรวจสอบรูปภาพและรายละเอียดบนหน้าสินค้า หากยังไม่มีข้อมูลที่ต้องการ กรุณาสอบถามร้านก่อนสั่งซื้อ",
+  },
+  {
+    question: "การจัดส่งและคืนสินค้ามีเงื่อนไขอย่างไร?",
+    answer: "อ่านข้อมูลในหน้าการจัดส่งและคืนสินค้า และติดต่อร้านเพื่อยืนยันค่าจัดส่ง ระยะเวลา พื้นที่จัดส่ง และเงื่อนไขการคืนสินค้าสำหรับคำสั่งซื้อของคุณ",
+    href: "/shipping-returns",
+    label: "ดูข้อมูลการจัดส่งและคืนสินค้า",
+  },
+  {
+    question: "สินค้ามีการรับประกันหรือไม่?",
+    answer: "ตรวจสอบข้อมูลในหน้าการรับประกัน และสอบถามเงื่อนไขของสินค้าแต่ละรุ่นกับร้านก่อนสั่งซื้อ",
+    href: "/warranty",
+    label: "ดูข้อมูลการรับประกัน",
+  },
+  {
+    question: "ชำระเงินด้วยวิธีใดได้บ้าง?",
+    answer: "ตรวจสอบช่องทางที่แสดงในขั้นตอนชำระเงิน หากมีข้อสงสัย กรุณาติดต่อร้านก่อนชำระเงิน",
+  },
+];
+
+export default function FAQSection() {
   const [openIndex, setOpenIndex] = useState(null);
 
-  const toggleFAQ = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
-
-  const faqs = [
-    {
-      question: "What is the return policy?",
-      answer:
-        "You can return the product within 30 days of purchase for a full refund.",
-    },
-    {
-      question: "How long does shipping take?",
-      answer: "Shipping typically takes 5-7 business days.",
-    },
-    {
-      question: "Do you offer international shipping?",
-      answer:
-        "Yes, we offer international shipping to many countries. Shipping costs and times may vary.",
-    },
-    {
-      question: "How can I track my order?",
-      answer:
-        "Once your order is shipped, you will receive an email with the tracking information.",
-    },
-    {
-      question: "What payment methods are accepted?",
-      answer: "We accept all major credit cards, PayPal, and Apple Pay.",
-    },
-  ];
-
   return (
-    <div className="bg-white p-8 rounded-lg shadow-lg mt-8 relative">
-      <div className="absolute inset-0 bg-gradient-to-br  rounded-lg transform scale-105 opacity-75 blur-lg"></div>
-      <h3 className="text-2xl font-bold text-gray-800 text-center mb-6 relative z-10">
-        Frequently Asked Questions
-      </h3>
-      <div className="space-y-4 relative z-10">
+    <section className="mt-8 rounded-xl bg-white p-8 shadow-lg">
+      <h2 className="mb-6 text-2xl font-bold text-stone-900">คำถามเกี่ยวกับสินค้าและการสั่งซื้อ</h2>
+      <div className="space-y-4">
         {faqs.map((faq, index) => (
-          <motion.div
-            key={index}
-            className={`border-b border-gray-200 ${
-              openIndex === index ? "bg-slate-50/50" : "bg-white"
-            } rounded-lg overflow-hidden`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-          >
+          <div key={faq.question} className="border-b border-stone-200">
             <button
-              onClick={() => toggleFAQ(index)}
-              className="w-full flex justify-between items-center py-4 text-left focus:outline-none px-4"
+              type="button"
+              onClick={() => setOpenIndex(openIndex === index ? null : index)}
+              aria-expanded={openIndex === index}
+              aria-controls={`product-faq-${index}`}
+              className="flex w-full items-center justify-between gap-4 py-4 text-left font-semibold focus-visible:outline focus-visible:outline-2"
             >
-              <span className="text-lg font-semibold text-gray-700">
-                {faq.question}
-              </span>
-              {openIndex === index ? (
-                <ChevronUp className="w-6 h-6 text-gray-700" />
-              ) : (
-                <ChevronDown className="w-6 h-6 text-gray-700" />
-              )}
+              {faq.question}
+              {openIndex === index ? <ChevronUp aria-hidden="true" className="h-6 w-6 shrink-0" /> : <ChevronDown aria-hidden="true" className="h-6 w-6 shrink-0" />}
             </button>
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{
-                height: openIndex === index ? "auto" : 0,
-                opacity: openIndex === index ? 1 : 0,
-              }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-            >
-              <div className="px-4 py-2">
-                <p className="text-gray-600">{faq.answer}</p>
-              </div>
-            </motion.div>
-          </motion.div>
+            <div id={`product-faq-${index}`} hidden={openIndex !== index} className="pb-4 text-stone-700">
+              <p>{faq.answer}</p>
+              {faq.href && <Link href={faq.href} className="mt-3 inline-block underline underline-offset-4">{faq.label}</Link>}
+            </div>
+          </div>
         ))}
       </div>
-    </div>
+      <Link href="/contact" className="mt-6 inline-block underline underline-offset-4">สอบถามร้านเพิ่มเติม</Link>
+    </section>
   );
-};
-
-export default FAQSection;
+}

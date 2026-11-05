@@ -35,7 +35,7 @@ const SearchDrawer = ({
                 id="search"
                 value={searchTerm.search}
                 onChange={handleChange}
-                placeholder="Search for watches..."
+                placeholder="Search for products..."
                 className="w-full pl-10 pr-4 py-2 rounded-full text-lg"
                 autoComplete="off"
               />
@@ -104,7 +104,7 @@ const SearchDrawer = ({
                           </span>
                         </div>
                         <p className="text-xs text-gray-500 mt-1">
-                          {prod.movement} | {prod.casematerial} | {prod.glass}
+                          {prod.category}
                         </p>
                         <Link
                           onClick={() => handleSearchClose()}

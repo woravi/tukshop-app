@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import toast, { Toaster } from "react-hot-toast";
 import Image from "next/image";
+import { BAG_CATEGORIES } from "@/lib/product-categories.mjs";
 
 const EditProduct = () => {
   const { data: session } = useSession();
@@ -19,26 +20,8 @@ const EditProduct = () => {
   const [imageError, setImageError] = useState("");
   const uploadingRef = useRef(false);
   const [product, setProduct] = useState({
-    user: "",
-    name: "",
-    description: "",
-    condition: "",
-    bracelet: "",
-    brand: "",
-    material: "",
-    images: [],
-    stock: 0,
-    price: 0,
-    originalPrice: 0,
-    movement: "",
-    thickness: "",
-    glass: "",
-    luminova: "",
-    casematerial: "",
-    crown: "",
-    bandsize: "",
-    lugs: "",
-    water: "",
+    name: "", description: "", condition: "", brand: "", category: "",
+    material: "", stock: 0, price: "", originalPrice: "",
   });
 
   useEffect(() => {
@@ -124,7 +107,8 @@ const EditProduct = () => {
     }
     setImageError("");
     try {
-      const productData = { ...product, stock: Number(product.stock), expectedStock, images: imageUrls };
+      const { name, description, condition, brand, category, material, price, originalPrice } = product;
+      const productData = { name, description, condition, brand, category: category || null, material, price, originalPrice, stock: Number(product.stock), expectedStock, images: imageUrls };
       const productRes = await axios.put(`/api/product/${productId}`, productData);
       if (productRes.status === 200) {
         toast.success("Product edited successfully!");
@@ -182,24 +166,7 @@ const EditProduct = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Brand
               </label>
-              <select
-                name="brand"
-                id="brand"
-                value={product.brand}
-                onChange={handleChange}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                required
-              >
-                <option value="">Select a brand</option>
-                <option value="Rolex">Rolex</option>
-                <option value="Patek Philipe">Patek Philippe</option>
-                <option value="Audemars Piguet">Audemars Piguet</option>
-                <option value="Richard Mille">Richard Mille</option>
-                <option value="Omega">Omega</option>
-                <option value="IWC">IWC</option>
-                <option value="Cartier">Cartier</option>
-                <option value="Tudor">Tudor</option>
-              </select>
+              <Input name="brand" id="brand" value={product.brand ?? ""} onChange={handleChange} placeholder="Brand" />
             </div>
           </div>
 
@@ -244,243 +211,14 @@ const EditProduct = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Material
-              </label>
-              <select
-                name="material"
-                id="material"
-                value={product.material}
-                onChange={handleChange}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                required
-              >
-                <option value="">Select material</option>
-                <option value="Stainless Steel">Stainless Steel</option>
-                <option value="Gold">Gold</option>
-                <option value="Rose Gold">Rose Gold</option>
-                <option value="Two Tone">Two Tone</option>
+            <div><label htmlFor="category">ประเภทกระเป๋า</label>
+              <select id="category" name="category" value={product.category ?? ""} onChange={handleChange} className="block w-full border rounded-md p-2">
+                <option value="">ไม่ระบุ</option>
+                {BAG_CATEGORIES.map(category => <option key={category} value={category}>{category}</option>)}
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Bracelet Style
-              </label>
-              <select
-                name="bracelet"
-                id="bracelet"
-                value={product.bracelet}
-                onChange={handleChange}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                required
-              >
-                <option value="">Select bracelet style</option>
-                <option value="Oyster Bracelet">Oyster Bracelet</option>
-                <option value="Jubilee Bracelet">Jubilee Bracelet</option>
-                <option value="Presidential Bracelet">
-                  Presidential Bracelet
-                </option>
-                <option value="Iconic Brand Bracelet">
-                  Iconic Brand Bracelet
-                </option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Watch Condition
-              </label>
-              <select
-                name="condition"
-                id="condition"
-                value={product.condition}
-                onChange={handleChange}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                required
-              >
-                <option value="">Select condition</option>
-                <option value="Brand New">Brand New</option>
-                <option value="Like New">Like New</option>
-                <option value="Well Worn">Well Worn</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Movement
-              </label>
-              <select
-                name="movement"
-                id="movement"
-                value={product.movement}
-                onChange={handleChange}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                required
-              >
-                <option value="">Select movement</option>
-                <option value="Rolex 3235 Automatik Movement">
-                  Rolex 3235 Automatik Movement
-                </option>
-                <option value="Rolex 3225 Automatik Movement">
-                  Rolex 3225 Automatik Movement
-                </option>
-                <option value="Rolex 3245 Automatik Movement">
-                  Rolex 3245 Automatik Movement
-                </option>
-                <option value="Rolex 3265 Automatik Movement">
-                  Rolex 3265 Automatik Movement
-                </option>
-                <option value="Patek Philipe 5711 Automatik Movement">
-                  Patek Philipe 5711 Automatik Movement
-                </option>
-                <option value="Patek Philipe 5712G Automatik Movement">
-                  Patek Philipe 5712G Automatik Movement
-                </option>
-                <option value="Audemars Piguet 412513 Automatik Movement">
-                  Audemars Piguet 412513 Automatik Movement
-                </option>
-                <option value="Audemars Piguet 414221 Automatik Movement">
-                  Audemars Piguet 414221 Automatik Movement
-                </option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Thickness
-              </label>
-              <Input
-                type="text"
-                name="thickness"
-                id="thickness"
-                value={product.thickness}
-                onChange={handleChange}
-                placeholder="e.g., 12mm"
-                className="w-full"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Glass
-              </label>
-              <Input
-                type="text"
-                name="glass"
-                id="glass"
-                value={product.glass}
-                onChange={handleChange}
-                placeholder="e.g., Sapphire Glass - Scratch Proof"
-                className="w-full"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Luminova
-              </label>
-              <Input
-                type="text"
-                name="luminova"
-                id="luminova"
-                value={product.luminova}
-                onChange={handleChange}
-                placeholder="e.g., Yes"
-                className="w-full"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Case Material
-              </label>
-              <select
-                name="casematerial"
-                id="casematerial"
-                value={product.casematerial}
-                onChange={handleChange}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                required
-              >
-                <option value="">Select case material</option>
-                <option value="316L Stainless Steel">
-                  316L Stainless Steel
-                </option>
-                <option value="904L Stainless Steel">
-                  904L Stainless Steel
-                </option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Crown
-              </label>
-              <Input
-                type="text"
-                name="crown"
-                id="crown"
-                value={product.crown}
-                onChange={handleChange}
-                placeholder="e.g., Screwed"
-                className="w-full"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Band Size
-              </label>
-              <Input
-                type="text"
-                name="bandsize"
-                id="bandsize"
-                value={product.bandsize}
-                onChange={handleChange}
-                placeholder="e.g., 14.5cm to 22cm (Adjustable)"
-                className="w-full"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Lugs
-              </label>
-              <Input
-                type="text"
-                name="lugs"
-                id="lugs"
-                value={product.lugs}
-                onChange={handleChange}
-                placeholder="e.g., 20mm"
-                className="w-full"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Water Resistance
-              </label>
-              <Input
-                type="text"
-                name="water"
-                id="water"
-                value={product.water}
-                onChange={handleChange}
-                placeholder="e.g., 3 ATM"
-                className="w-full"
-                required
-              />
-            </div>
+            <div><label htmlFor="material">วัสดุ</label><Input id="material" name="material" value={product.material ?? ""} onChange={handleChange} /></div>
+            <div><label htmlFor="condition">สภาพ</label><Input id="condition" name="condition" value={product.condition ?? ""} onChange={handleChange} /></div>
           </div>
 
           <div>
@@ -542,6 +280,7 @@ const EditProduct = () => {
               Update Product
             </Button>
             <Button
+              type="button"
               onClick={handleDelete}
               variant="destructive"
               className="px-8 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"

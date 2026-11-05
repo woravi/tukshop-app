@@ -19,7 +19,7 @@ CREATE TABLE products (
   description TEXT NULL,
   price DECIMAL(12,2) NULL,
   originalPrice DECIMAL(12,2) NULL,
-  brand VARCHAR(255) NULL, material VARCHAR(255) NULL, bracelet VARCHAR(255) NULL,
+  brand VARCHAR(255) NULL, category VARCHAR(255) NULL, material VARCHAR(255) NULL, bracelet VARCHAR(255) NULL,
   `condition` VARCHAR(255) NULL,
   `user` BIGINT UNSIGNED NULL,
   averageRating DECIMAL(4,2) NOT NULL DEFAULT 0,
