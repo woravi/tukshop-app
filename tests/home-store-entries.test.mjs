@@ -17,7 +17,7 @@ test('homepage retains its bag hero and offers two explicit store entrances', as
     module: { type: 'commonjs' },
   }).code;
   vm.runInNewContext(code, { module, exports: module.exports, AbortController,
-    fetch: async () => ({ ok: true, json: async () => ({ products: [] }) }),
+    fetch: async url => ({ ok: true, json: async () => url==='/api/food/menu' ? {items:[{name:'เมนูจากครัว',source_type:'made_to_order',image_url:'/api/images/991'}]} : { products: [] } }),
     require(id) {
       if (id === 'next/link') return host('a');
       if (id === 'next/image') return host('img');
@@ -33,6 +33,11 @@ test('homepage retains its bag hero and offers two explicit store entrances', as
     const entries = renderer.root.findByProps({ 'aria-label': 'เลือกร้าน' });
     const links = entries.findAllByType('a');
     assert.deepEqual(links.map(link => link.props.href), ['/products/category/all', '/food']);
-    assert.deepEqual(links.map(link => link.findByType('h2').children.join('')), ['ร้านสินค้า', 'ร้านอาหาร']);
+    assert.deepEqual(links.map(link => link.findByType('h2').children.join('')), ['ร้านสินค้า', 'ครัวรัชนี']);
+    assert.match(JSON.stringify(links[1].findAllByType('p').map(p=>p.children.join(''))), /อาหารตามสั่ง/);
+    assert.equal(links[1].findByType('img').props.src,'/api/images/991');
+    const main=renderer.root.findByType('main');
+    assert.ok(main.children.indexOf(entries)<main.children.indexOf(renderer.root.findByType(ShopHero)),'both stores are visible before the large bag hero');
+    assert.doesNotMatch(JSON.stringify(renderer.toJSON()),/ครัวตุ๊ก/);
   } finally { if (renderer) act(() => renderer.unmount()); }
 });

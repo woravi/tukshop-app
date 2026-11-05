@@ -3,7 +3,7 @@ import {useEffect,useState} from 'react';
 import Link from 'next/link';
 import {UtensilsCrossed,ShoppingBag,Plus,Leaf,ArrowRight} from 'lucide-react';
 import useFoodCart from '../../store/foodCartStore';
-import {FOOD_CATEGORIES,foodRequest,foodPrice,isOrderingOpen,localFoodImage,foodSelection,canAddFoodMenu,foodSettingsDisplay} from '../../lib/food-client.mjs';
+import {FOOD_CATEGORIES,foodRequest,foodPrice,isOrderingOpen,localFoodImage,foodSelection,canAddFoodMenu} from '../../lib/food-client.mjs';
 import s from './food.module.css';
 
 function MenuCard({menu,open,onAdd}) {
@@ -30,15 +30,37 @@ export default function FoodMenu() {
   const items=useFoodCart(state=>state.items),add=useFoodCart(state=>state.add);
   async function load(signal) {setLoading(true);setError('');try{const [records,config]=await Promise.all([foodRequest('/api/food/menu',{signal}),foodRequest('/api/food/settings',{signal})]);if(!Array.isArray(records.items))throw new Error('ข้อมูลเมนูไม่ถูกต้อง');setMenu(records.items);setSettings(config.settings);}catch(e){if(e.name!=='AbortError'){setError(e.message);setSettings(null);}}finally{setLoading(false);}}
   useEffect(()=>{setMounted(true);const controller=new AbortController();load(controller.signal);return()=>controller.abort();},[]);
-  const display=foodSettingsDisplay(settings);
+  const deliveryZones=settings?.delivery_enabled===true&&Array.isArray(settings.delivery_zones)?settings.delivery_zones.filter(zone=>zone.enabled===true&&zone.fee!==''&&zone.fee!=null&&Number.isFinite(Number(zone.fee))&&Number(zone.fee)>=0):[];
+  const serviceDays=(Array.isArray(settings?.weekdays)?settings.weekdays:Object.keys(settings?.hours||{})).map(Number).filter(day=>day>=0&&day<=6&&settings?.hours?.[day]?.open&&settings?.hours?.[day]?.close);
+  const welcomeMenu=menu.find(item=>canAddFoodMenu(item)&&localFoodImage(item.image_url))||menu.find(item=>localFoodImage(item.image_url));
   const open=isOrderingOpen(settings), count=mounted?items.reduce((n,item)=>n+item.quantity,0):0;
   const visible=menu.filter(item=>(category==='ทั้งหมด'||item.category===category)&&`${item.name} ${item.description||''}`.toLowerCase().includes(search.toLowerCase()));
   function onAdd(item,options){setNotice(add(item,options)?`เพิ่ม ${item.name} ในตะกร้าแล้ว`:'ไม่สามารถเพิ่มรายการนี้ได้');}
   return <main className={s.shell}>
-    <div className={s.top}><Link href="/food" className={s.brand}><span className={s.brandmark}><UtensilsCrossed size={23}/></span> ครัวตุ๊ก</Link><Link href="/food/cart" className={s.secondary}><ShoppingBag size={18}/> ตะกร้าอาหาร <span className={s.badge}>{count}</span></Link></div>
-    <header className={s.hero}><div><p className={s.eyebrow}>เมนูอาหารจากครัวตุ๊ก</p><h1>มื้อนี้…<br/>ให้ครัวเราดูแล</h1><p className={s.muted}>อาหารตามสั่ง อาหารกล่อง และของอร่อยระหว่างวัน<br/>เลือกเมนูที่ชอบ แล้วระบุเวลารับอาหารได้เลย</p></div><aside className={`${s.notice} ${open?s.open:''}`}><strong>{loading?'กำลังตรวจสอบเวลารับออร์เดอร์':open?'เปิดรับออร์เดอร์':'ยังไม่เปิดรับออร์เดอร์'}</strong><p>{open?'เลือกรับเอง หรือจัดส่งในพื้นที่ที่ร้านให้บริการ':'เลือกดูเมนูได้ ร้านจะเปิดรับเมื่อพร้อมให้บริการ'}</p><p className={s.small}>จุดรับอาหาร: {display.pickup_address}</p><p className={s.small}>เตรียมอาหารอย่างน้อย {display.prep_minutes} นาที</p><details className={s.small}><summary>เวลาให้บริการ · จันทร์–ศุกร์</summary>{['จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์'].map((day,index)=><p key={day}>{day}: {display.hours[index+1].open||'เวลาเปิดรอกำหนด'} – {display.hours[index+1].close} น.</p>)}</details>{!display.delivery_zones.some(zone=>zone.enabled===true&&zone.fee!==''&&zone.fee!=null)&&<p className={s.small}>ค่าจัดส่งยังไม่กำหนด · ยังไม่เปิดบริการจัดส่ง</p>}</aside></header>
+    <div className={s.top}><Link href="/food" className={s.brand}><span className={s.brandmark}><UtensilsCrossed size={23}/></span> ครัวรัชนี</Link><Link href="/food/cart" className={s.secondary}><ShoppingBag size={18}/> ตะกร้าอาหาร <span className={s.badge}>{count}</span></Link></div>
+    <header className={s.welcome} aria-labelledby="food-welcome-title">
+      <div className={s.welcomeIntro}>
+        <p className={s.welcomeEyebrow}>เมนูอาหารจากครัวรัชนี</p>
+        <h1 id="food-welcome-title" className={s.welcomeTitle}>ครัวรัชนี</h1>
+        <p className={s.welcomeLead}>มื้อที่ชอบ เริ่มจากครัวเรา</p>
+        <p className={s.welcomeCopy}>เลือกอาหารตามสั่ง อาหารกล่อง หรือของทานเล่น<br/>ดูรายละเอียดเมนู เลือกสิ่งที่ชอบ แล้วสั่งได้ในที่เดียว</p>
+        <div className={s.welcomeActions}>
+          <a href="#food-menu" className={s.welcomePrimary}>ดูเมนูและสั่งอาหาร <ArrowRight size={18} aria-hidden="true"/></a>
+          <Link href="/food/cart" className={s.welcomeSecondary}><ShoppingBag size={18} aria-hidden="true"/> ดูตะกร้าอาหาร</Link>
+        </div>
+        <div className={s.welcomeSignature} aria-hidden="true"><span/> อิ่มง่าย ๆ ในแบบที่คุณเลือก</div>
+      </div>
+      <figure className={s.welcomeVisual}>
+        {welcomeMenu?<><img className={s.welcomeImage} src={localFoodImage(welcomeMenu.image_url)} alt={welcomeMenu.name} fetchPriority="high"/><figcaption className={s.welcomeCaption}><span>จากเมนูของเรา</span><strong>{welcomeMenu.name}</strong><a href="#food-menu" aria-label={`ดูเมนู ${welcomeMenu.name}`}><ArrowRight size={21}/></a></figcaption></>:<div className={s.welcomePlaceholder}><UtensilsCrossed size={64} strokeWidth={1} aria-hidden="true"/><span>ครัวรัชนี</span><small>{loading?'กำลังเตรียมรายการเมนู…':'เลือกมื้อที่ชอบ จากเมนูด้านล่าง'}</small></div>}
+      </figure>
+      <aside className={s.welcomeService} aria-label="ข้อมูลการให้บริการ">
+        <div><strong role="status">{loading?'กำลังตรวจสอบเวลารับออร์เดอร์':open?'เปิดรับออร์เดอร์':'ยังไม่เปิดรับออร์เดอร์'}</strong><p>{loading?'รอสักครู่ กำลังตรวจสอบข้อมูลจากร้าน':error?'ยังไม่สามารถตรวจสอบข้อมูลร้านได้ กรุณาลองอีกครั้ง':open?'เลือกเมนู แล้วตรวจสอบวิธีรับอาหารในตะกร้า':'เลือกดูเมนูได้ ร้านจะเปิดรับเมื่อพร้อมให้บริการ'}</p></div>
+        <div>{!loading&&settings?<>{settings.pickup_enabled===true?<p className={s.small}>จุดรับอาหาร: {settings.pickup_address?.trim()||'สอบถามจุดรับอาหารจากร้าน'}</p>:<p className={s.small}>ยังไม่เปิดบริการรับเอง</p>}{Number(settings.prep_minutes)>0&&<p className={s.small}>เตรียมอาหารอย่างน้อย {Number(settings.prep_minutes)} นาที</p>}</>:<p className={s.small}>รายละเอียดการรับอาหารรอการยืนยันจากร้าน</p>}</div>
+        <div>{!loading&&settings&&<>{serviceDays.length>0?<details className={s.small}><summary>เวลาให้บริการ</summary>{serviceDays.map(day=><p key={day}>{['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'][day]}: {settings.hours[day].open} – {settings.hours[day].close} น.</p>)}</details>:<p className={s.small}>เวลาให้บริการรอการยืนยันจากร้าน</p>}{deliveryZones.length>0?deliveryZones.map(zone=><p className={s.small} key={zone.id||zone.name}>จัดส่ง {zone.name} · {foodPrice(zone.fee)}</p>):<p className={s.small}>ยังไม่เปิดบริการจัดส่ง</p>}</>}</div>
+      </aside>
+    </header>
     {error&&<div className={s.error} role="alert">{error} <button className={s.secondary} onClick={()=>load()}>ลองอีกครั้ง</button></div>}
-    <div className={s.toolbar}><nav className={s.nav} aria-label="หมวดอาหาร">{['ทั้งหมด',...FOOD_CATEGORIES].map(name=><button key={name} aria-pressed={category===name} className={`${s.chip} ${category===name?s.active:''}`} onClick={()=>setCategory(name)}>{name}</button>)}</nav><input className={s.search} style={{maxWidth:230}} aria-label="ค้นหาเมนู" placeholder="ค้นหาเมนูที่อยากทาน…" value={search} onChange={event=>setSearch(event.target.value)}/></div>
+    <div id="food-menu" tabIndex={-1} className={`${s.toolbar} ${s.welcomeMenuTarget}`}><nav className={s.nav} aria-label="หมวดอาหาร">{['ทั้งหมด',...FOOD_CATEGORIES].map(name=><button key={name} aria-pressed={category===name} className={`${s.chip} ${category===name?s.active:''}`} onClick={()=>setCategory(name)}>{name}</button>)}</nav><input className={s.search} style={{maxWidth:230}} aria-label="ค้นหาเมนู" placeholder="ค้นหาเมนูที่อยากทาน…" value={search} onChange={event=>setSearch(event.target.value)}/></div>
     <div className={s.toolbar}><h2>{category==='ทั้งหมด'?'เมนูจากครัว':category}</h2><span className={s.small}>{visible.length} เมนู <Leaf size={13} style={{display:'inline'}}/></span></div>
     <p role="status" className={s.small} aria-live="polite">{notice}</p>
     {loading?<div className={s.empty} role="status">กำลังเตรียมรายการเมนู…</div>:visible.length?<div className={s.grid}>{visible.map(item=><MenuCard key={item.id} menu={item} open={open} onAdd={onAdd}/>)}</div>:<div className={s.empty}><h3>{search?'ไม่พบเมนูที่ค้นหา':'ยังไม่มีเมนูในหมวดนี้'}</h3><p className={s.muted}>กลับมาเลือกเมนูอร่อยได้ใหม่อีกครั้ง</p></div>}

@@ -8,7 +8,7 @@ const link={__esModule:true,default:({children,href,...props})=>React.createElem
 
 test('customer menu fetches real records and prevents ordering when closed', async () => {
   const old=globalThis.fetch; const calls=[];
-  globalThis.fetch=async(url)=>{calls.push(url);return Response.json(url.endsWith('menu')?{items:[{id:'1',name:'กะเพราเต้าหู้',price:55,category:'ตามสั่ง',source_type:'made_to_order',available:true,options:[],allergens:'ถั่วเหลือง',allergens_confirmed:true}]}:{settings:{order_accepting:false,configured:false}});};
+  globalThis.fetch=async(url)=>{calls.push(url);return Response.json(url.endsWith('menu')?{items:[{id:'1',name:'กะเพราเต้าหู้',price:55,category:'ตามสั่ง',source_type:'made_to_order',available:true,options:[],allergens:'ถั่วเหลือง',allergens_confirmed:true}]}:{settings:{order_accepting:false,configured:false,pickup_enabled:true,pickup_address:'บ้าน ทุ่งประดู่',prep_minutes:20,weekdays:[1,2,3,4,5],hours:Object.fromEntries([1,2,3,4,5].map(day=>[day,{open:'09:00',close:'18:00'}]))}});};
   try {
     const {default:Menu}=loadFoodComponent('components/food/FoodMenu.jsx',{'next/link':link});
     let tree; await act(async()=>{tree=renderer.create(React.createElement(Menu));});

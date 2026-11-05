@@ -36,5 +36,5 @@ for (const stock of [0, 3]) {
 test('menu hero uses neutral wording without an unverified freshness claim', async t => {
   const tree = await renderMenu(t, []);
   const eyebrow = tree.root.findByType('header').findAllByType('p')[0];
-  assert.equal(eyebrow.children.join(''), 'เมนูอาหารจากครัวตุ๊ก');
+  assert.equal(eyebrow.children.join(''), 'เมนูอาหารจากครัวรัชนี');
 });
