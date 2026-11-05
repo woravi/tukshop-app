@@ -1,4 +1,5 @@
 "use client";
+import { formatTHB } from "@/lib/currency.mjs";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -156,7 +157,7 @@ const Orders = () => {
                         <strong>Country:</strong> {order.country}
                       </p>
                       <p className="text-gray-600">
-                        <strong>Total:</strong> ${order.total}
+                        <strong>Total:</strong> {order.total} (currency not recorded)
                       </p>
                     </div>
                   </div>
@@ -184,8 +185,7 @@ const Orders = () => {
                                     {productItem.product.name}
                                   </p>
                                   <p className="text-sm text-gray-600">
-                                    Quantity: {productItem.quantity} | Price: $
-                                    {productItem.product.price}
+                                    Quantity: {productItem.quantity} | Current price: {formatTHB(productItem.product.price)}
                                   </p>
                                 </div>
                               </Link>

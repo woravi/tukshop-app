@@ -28,6 +28,7 @@ const Create = () => {
     brand: "Rolex",
     material: "Stainless Steel",
     images: [],
+    stock: 0,
     price: 12500,
     originalPrice: 15000,
     movement: "Seiko NH35a Date Automatik Movement",
@@ -105,7 +106,7 @@ const Create = () => {
     if (imageUrls.length > 0) {
         try {
             const productData = {
-                ...product, images: imageUrls
+                ...product, stock: Number(product.stock), images: imageUrls
             };
             const productRes = await axios.post("/api/products", productData);
             if(productRes.status === 200 || productRes.status === 201){
@@ -126,6 +127,10 @@ const Create = () => {
           </h1>
         </div>
         <form onSubmit={handleSubmit} className="px-8 py-10 space-y-8">
+          <div>
+            <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+            <Input type="number" id="stock" name="stock" min="0" max="4294967295" step="1" required value={product.stock} onChange={handleChange} />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -467,7 +472,7 @@ const Create = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Original Price
+                Original Price (THB)
               </label>
               <Input
                 type="number"
@@ -482,7 +487,7 @@ const Create = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Sale Price
+                Sale Price (THB)
               </label>
               <Input
                 type="number"

@@ -1,4 +1,6 @@
 "use client";
+
+import { formatTHB } from "@/lib/currency.mjs";
 import React, { useEffect, useState } from "react";
 import useCartStore from "../../store/cartStore.js";
 import Image from "next/image";
@@ -215,7 +217,7 @@ const Cart = ({ ids }) => {
                     </div>
                     <div className="flex items-center space-x-4 mt-4 md:mt-0">
                       <span className="font-bold text-lg text-gray-800">
-                        ${(item.price * (item.quantity || 1)).toFixed(2)}
+                        {formatTHB(item.price * (item.quantity || 1))}
                       </span>
                       <button
                         onClick={() => removeItem(item._id)}
@@ -235,7 +237,7 @@ const Cart = ({ ids }) => {
                 <div className="flex justify-between text-xl">
                   <span>Total Price:</span>
                   <span className="font-bold">
-                    ${getTotalPrice().toFixed(2)}
+                    {formatTHB(getTotalPrice())}
                   </span>
                 </div>
               </div>
@@ -380,7 +382,7 @@ const Cart = ({ ids }) => {
                     </div>
                     <div className="flex items-center space-x-4 mt-4 md:mt-0">
                       <span className="font-bold text-lg text-gray-800">
-                        ${(item.price * (item.quantity || 1)).toFixed(2)}
+                        {formatTHB(item.price * (item.quantity || 1))}
                       </span>
                       <button
                         onClick={() => removeItem(item._id)}
@@ -400,7 +402,7 @@ const Cart = ({ ids }) => {
                 <div className="flex justify-between text-xl">
                   <span>Total Price:</span>
                   <span className="font-bold">
-                    ${getTotalPrice().toFixed(2)}
+                    {formatTHB(getTotalPrice())}
                   </span>
                 </div>
               </div>

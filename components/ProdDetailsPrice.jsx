@@ -1,4 +1,7 @@
+import { availableStock, stockLabel } from "@/lib/stock.mjs";
+import { formatTHB } from "@/lib/currency.mjs";
 import React from "react";
+import useCartStore from "@/store/cartStore";
 import { ShoppingCart, Heart } from "lucide-react";
 
 const ProdDetailsPrice = ({
@@ -9,6 +12,7 @@ const ProdDetailsPrice = ({
   handleAddToCart,
   toggleWishlist,
 }) => {
+  const cartQuantity = useCartStore((state) => state.items.find((item) => item._id === product._id)?.quantity || 0);
   return (
     <div className="md:w-1/2 px-4 sm:px-8 pb-8 sm:pt-20">
       <div className="relative overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 rounded-t-xl shadow-lg p-4 sm:p-8 mb-8 hover:shadow-2xl">
@@ -25,12 +29,12 @@ const ProdDetailsPrice = ({
 
           <div className="flex items-center flex-wrap mb-6">
             <p className="text-xl sm:text-2xl font-semibold text-green-400 mr-2 sm:mr-4 antialiased">
-              ${product.price.toFixed(2)}
+              {formatTHB(product.price)}
             </p>
             {product.originalPrice && product.originalPrice > product.price && (
               <>
                 <p className="text-lg sm:text-xl text-gray-400 line-through mr-2 sm:mr-4 antialiased">
-                  ${product.originalPrice.toFixed(2)}
+                  {formatTHB(product.originalPrice)}
                 </p>
                 <span className="px-2 py-1 text-xs sm:text-sm font-semibold text-yellow-200 bg-yellow-800 hover:bg-yellow-700 rounded-full antialiased">
                   {Math.round(
@@ -43,11 +47,11 @@ const ProdDetailsPrice = ({
               </>
             )}
             <span className="px-3 hidden sm:block py-1 text-sm font-semibold text-green-200 bg-green-800 hover:bg-green-700 rounded-full antialiased ml-auto">
-              In Stock
+              {stockLabel(product)}
             </span>
           </div>
           <span className="px-3 sm:hidden py-1 text-sm font-semibold text-green-200 bg-green-800 rounded-full antialiased ml-auto">
-            In Stock
+            {stockLabel(product)}
           </span>
           <p className="mb-6 mt-6 text-sm sm:mt-0 text-gray-300 leading-relaxed bg-gray-800 bg-opacity-50 rounded-lg p-4 shadow-inner backdrop-filter backdrop-blur-sm antialiased max-h-[20rem] overflow-auto">
             {product.description}
@@ -91,10 +95,11 @@ const ProdDetailsPrice = ({
       <div className="flex space-x-4">
         <button
           onClick={handleAddToCart}
+          disabled={cartQuantity >= availableStock(product)}
           className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center justify-center"
         >
           <ShoppingCart className="mr-2 h-5 w-5 animate-bounce" />
-          <span className="font-semibold">Add to Cart</span>
+          <span className="font-semibold">{availableStock(product) === 0 ? stockLabel(product) : cartQuantity >= availableStock(product) ? "Stock limit reached" : "Add to Cart"}</span>
         </button>
         <button
           onClick={toggleWishlist}

@@ -1,3 +1,5 @@
+import { availableStock, stockLabel } from "@/lib/stock.mjs";
+import { formatTHB } from "@/lib/currency.mjs";
 import React, { useEffect, useState } from "react";
 import useCartStore from "../store/cartStore";
 import Image from "next/image";
@@ -86,6 +88,7 @@ const Cart = () => {
                     <p className="text-xs text-gray-500">
                       {item?.brand} - {item?.material}
                     </p>
+                    <p className="text-xs text-gray-500">{stockLabel(item)}</p>
                     <div className="flex items-center mt-1">
                       <button
                         onClick={(e) =>
@@ -100,6 +103,8 @@ const Cart = () => {
                         onClick={(e) =>
                           handleQuantityChange(e, item._id, item.quantity + 1)
                         }
+                        disabled={(item.quantity || 1) >= availableStock(item)}
+                        aria-label="Increase quantity"
                         className="p-1 bg-gray-200 rounded-full"
                       >
                         <Plus className="h-4 w-4" />
@@ -108,7 +113,7 @@ const Cart = () => {
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-sm text-gray-800">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      {formatTHB(item.price * item.quantity)}
                     </p>
                     <button
                       onClick={(e) => handleRemove(e, item._id)}
@@ -125,7 +130,7 @@ const Cart = () => {
             <div className="flex justify-between text-sm mb-2">
               <span>Subtotal:</span>
               <span className="font-semibold">
-                ${getTotalPrice().toFixed(2)}
+                {formatTHB(getTotalPrice())}
               </span>
             </div>
             <div className="flex justify-between text-sm mb-2">
@@ -134,7 +139,7 @@ const Cart = () => {
             </div>
             <div className="flex justify-between text-lg font-bold mt-4">
               <span>Total:</span>
-              <span>${getTotalPrice().toFixed(2)}</span>
+              <span>{formatTHB(getTotalPrice())}</span>
             </div>
           </div>
           <div className="space-y-3">

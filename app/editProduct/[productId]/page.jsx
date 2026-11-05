@@ -13,6 +13,7 @@ const EditProduct = () => {
   const { data: session } = useSession();
   const { productId } = useParams();
   const router = useRouter();
+  const [expectedStock, setExpectedStock] = useState(null);
   const [imageUrls, setImageUrls] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [imageError, setImageError] = useState("");
@@ -26,6 +27,7 @@ const EditProduct = () => {
     brand: "",
     material: "",
     images: [],
+    stock: 0,
     price: 0,
     originalPrice: 0,
     movement: "",
@@ -45,6 +47,7 @@ const EditProduct = () => {
         const res = await axios.get(`/api/product/${productId}`);
         const fetchedProduct = res.data;
         setProduct(fetchedProduct);
+        setExpectedStock(fetchedProduct.stock);
         setImageUrls(Array.isArray(fetchedProduct.images) ? fetchedProduct.images : []);
       } catch (error) {
         console.log(error);
@@ -121,7 +124,7 @@ const EditProduct = () => {
     }
     setImageError("");
     try {
-      const productData = { ...product, images: imageUrls };
+      const productData = { ...product, stock: Number(product.stock), expectedStock, images: imageUrls };
       const productRes = await axios.put(`/api/product/${productId}`, productData);
       if (productRes.status === 200) {
         toast.success("Product edited successfully!");
@@ -155,6 +158,10 @@ const EditProduct = () => {
           </h1>
         </div>
         <form onSubmit={handleSubmit} className="px-8 py-10 space-y-8">
+          <div>
+            <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+            <Input type="number" id="stock" name="stock" min="0" max="4294967295" step="1" required value={product.stock} onChange={handleChange} />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -495,7 +502,7 @@ const EditProduct = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Original Price
+                Original Price (THB)
               </label>
               <Input
                 type="number"
@@ -510,7 +517,7 @@ const EditProduct = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Sale Price
+                Sale Price (THB)
               </label>
               <Input
                 type="number"

@@ -1,3 +1,4 @@
+import { formatTHB } from "@/lib/currency.mjs";
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Image from "next/image";
@@ -174,7 +175,7 @@ const BestSellingWatches = () => {
                         {watch.name}
                       </h3>
                       <div className="flex justify-between items-center">
-                        <span className="font-bold">From ${watch.price}</span>
+                        <span className="font-bold">From {formatTHB(watch.price)}</span>
                         <div className="flex items-center">
                           <Star className="w-4 h-4 md:w-5 md:h-5 text-yellow-400 fill-current" />
                           <span className="ml-1 text-sm md:text-base">

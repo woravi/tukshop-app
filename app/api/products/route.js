@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { adminAccessStatus } from "@/lib/access.mjs";
-import { validateImageUrls } from "@/lib/mysql-model.mjs";
+import { validateImageUrls, validateStock } from "@/lib/mysql-model.mjs";
 
 export async function GET(req, res) {
   await connect();
@@ -29,6 +29,7 @@ export async function POST(req, res) {
   const body = await req.json();
 
   const {
+    stock = 0,
     name,
     description,
     images,
@@ -49,11 +50,13 @@ export async function POST(req, res) {
     water,
   } = body;
 
+  try { validateStock(stock); } catch { return NextResponse.json({error:"Invalid stock"},{status:400}); }
   try { validateImageUrls(images); } catch {
     return NextResponse.json({error:'Invalid product images'},{status:400});
   }
   try {
   const savedProduct = await Product.create({
+    stock,
     name,
     description,
     images,

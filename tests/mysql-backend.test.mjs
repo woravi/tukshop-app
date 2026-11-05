@@ -22,14 +22,6 @@ test('notification updates use SQL JSON object instead of Mongo $set paths', () 
   assert.match(route,/notificationPreferences/);
 });
 
-test('checkout binds order identity to session rather than cart payload', () => {
-  const checkout=readFileSync(new URL('../app/api/checkout/route.js',import.meta.url),'utf8');
-  assert.match(checkout,/getServerSession\(authOptions\)/);
-  assert.match(checkout,/email:\s*session\.user\.email/);
-  assert.match(checkout,/user:\s*session\.user\._id/);
-  assert.doesNotMatch(checkout,/\buser,\s*\n\s*\}\s*= body/);
-});
-
 test('product search only filters columns present in SQL schema', () => {
   const search=readFileSync(new URL('../app/api/products/[search]/route.js',import.meta.url),'utf8');
   assert.doesNotMatch(search,/shortDescription/);

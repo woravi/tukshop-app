@@ -1,3 +1,5 @@
+import { availableStock, stockLabel } from "@/lib/stock.mjs";
+import { formatTHB } from "@/lib/currency.mjs";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, Plus } from "lucide-react";
@@ -13,6 +15,7 @@ export default function ProductCard({ product, onWishlistUpdate }) {
   const { data: session } = useSession();
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
+  const cartQuantity = useCartStore((state) => state.items.find((item) => item._id === product._id)?.quantity || 0);
   const [wishlistItems, setWishlistItems] = useState([]);
 
   useEffect(() => {
@@ -36,8 +39,8 @@ export default function ProductCard({ product, onWishlistUpdate }) {
 
   const handleAddToCart = (e)=> {
     e.preventDefault();
-    addItem(product);
-    toast.success("Product added to Cart!")
+    if (addItem(product)) toast.success("Product added to Cart!");
+    else toast.error("Stock limit reached or unavailable");
   }
 
   const toggleWishlist = async (e)=> {
@@ -99,6 +102,8 @@ export default function ProductCard({ product, onWishlistUpdate }) {
               </button>
               <button
                 onClick={handleAddToCart}
+                disabled={cartQuantity >= availableStock(product)}
+                aria-label="Add to cart"
                 className="p-2 bg-white rounded-full hover:bg-blue-100 transition-colors duration-200"
               >
                 <Plus className="h-6 w-6 text-blue-500" />
@@ -111,13 +116,14 @@ export default function ProductCard({ product, onWishlistUpdate }) {
             {product.name}
           </h2>
           <p className="text-xs text-slate-400 mt-1">{product.brand}</p>
+          <p className="text-xs text-gray-600">{stockLabel(product)}</p>
           <div className="flex justify-between items-center mt-2">
             <p className="text-sm font-semibold text-gray-900">
-              CHF {product.price.toFixed(2)}
+              {formatTHB(product.price)}
             </p>
             {product.originalPrice && (
               <p className="text-xs text-gray-500 line-through">
-                CHF {product.originalPrice.toFixed(2)}
+                {formatTHB(product.originalPrice)}
               </p>
             )}
           </div>

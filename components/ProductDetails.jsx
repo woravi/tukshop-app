@@ -1,3 +1,5 @@
+import { availableStock, stockLabel } from "@/lib/stock.mjs";
+import { formatTHB } from "@/lib/currency.mjs";
 // components/ProductDetails.js
 
 import React, { useState } from "react";
@@ -11,6 +13,7 @@ import Image from "next/image";
 const ProductDetails = ({ product }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
+  const cartQuantity = useCartStore((state) => state.items.find((item) => item._id === product._id)?.quantity || 0);
 
   const handleAddToCart = async () => {
     addItem(product);
@@ -55,7 +58,7 @@ const ProductDetails = ({ product }) => {
           {product.name || "Product Name Unavailable"}
         </h1>
         <p className="text-2xl font-semibold text-gray-700">
-          ${product.price ? product.price.toFixed(2) : "Price Unavailable"}
+          {formatTHB(product.price)}
         </p>
         <p className="text-gray-600">
           {product.description || "No description available"}
@@ -78,9 +81,11 @@ const ProductDetails = ({ product }) => {
             {product.condition || "N/A"}
           </p>
         </div>
+        <p>{stockLabel(product)}</p>
         <div className="flex space-x-4 pt-4">
           <Button
             onClick={handleAddToCart}
+            disabled={cartQuantity >= availableStock(product)}
             className="flex-1 bg-blue-600 hover:bg-blue-700"
           >
             <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart

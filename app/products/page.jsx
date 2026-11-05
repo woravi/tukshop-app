@@ -1,4 +1,7 @@
 "use client";
+import { availableStock, stockLabel } from "@/lib/stock.mjs";
+
+import { formatTHB } from "@/lib/currency.mjs";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
@@ -132,8 +135,8 @@ const Products = () => {
   };
 
   const handleAddToCart = (product) => {
-    addItem(product);
-    toast.success("Added Item to Cart");
+    if (addItem(product)) toast.success("Added Item to Cart");
+    else toast.error("Stock limit reached or unavailable");
   };
 
   const handlePageChange = (newPage) => {
@@ -189,11 +192,12 @@ const Products = () => {
                     {product.description}
                   </p>
                   <p className="text-2xl font-bold text-green-600 mb-4">
-                    ${product.price.toFixed(2)}
+                    {formatTHB(product.price)} <span className="text-sm">{stockLabel(product)}</span>
                   </p>
                   <div className="flex justify-between items-center">
                     <Button
                       onClick={() => handleAddToCart(product)}
+                  disabled={availableStock(product) === 0}
                       className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 flex items-center flex-grow mr-2"
                     >
                       <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart

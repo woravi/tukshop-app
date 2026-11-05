@@ -4,7 +4,7 @@ import { Product } from "@/utils/models/Product";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { adminAccessStatus } from "@/lib/access.mjs";
-import { validateImageUrls } from "@/lib/mysql-model.mjs";
+import { validateImageUrls, validateStock } from "@/lib/mysql-model.mjs";
 
 export async function GET(req, { params }) {
   await connect();
@@ -33,9 +33,14 @@ export async function PUT(req, { params }) {
   const body = await req.json();
 
   try {
+    if ('stock' in body) {
+      try { validateStock(body.stock); validateStock(body.expectedStock); }
+      catch { return NextResponse.json({error:'Invalid stock or expected stock'},{status:400}); }
+    }
     if ('images' in body) validateImageUrls(body.images);
-    const {user,averageRating,numReviews,featured,...safeBody} = body;
+    const {user,averageRating,numReviews,featured,expectedStock,...safeBody} = body;
     const updatedProduct = await Product.findByIdAndUpdate(productId, safeBody, {
+      expectedStock: 'stock' in body ? expectedStock : undefined,
       new: true,
       runValidators: true,
     });
@@ -46,6 +51,7 @@ export async function PUT(req, { params }) {
 
     return NextResponse.json(updatedProduct);
   } catch (error) {
+    if (error.message?.startsWith("Stock changed")) return NextResponse.json({error:error.message},{status:409});
     return NextResponse.json(
       { error: "errot updating product" },
       { status: 500 }

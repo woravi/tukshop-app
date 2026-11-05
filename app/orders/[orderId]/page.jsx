@@ -113,7 +113,7 @@ export default function OrderDetails() {
                     </div>
                   </Link>
                   <span className="text-lg font-semibold text-gray-700">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    {(item.price * item.quantity).toFixed(2)} (currency not recorded)
                   </span>
                 </div>
               ))}
@@ -124,7 +124,7 @@ export default function OrderDetails() {
             <div className="flex justify-between items-center">
               <span className="text-2xl font-bold text-gray-900">Total</span>
               <span className="text-2xl font-bold text-indigo-600">
-                ${order.total.toFixed(2)}
+                {order.total.toFixed(2)} (currency not recorded)
               </span>
             </div>
           </div>

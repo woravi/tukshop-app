@@ -1,3 +1,4 @@
+import { formatTHB } from "@/lib/currency.mjs";
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
@@ -127,17 +128,16 @@ const FeaturedProduct = () => {
               </p>
               <div className="flex items-center mb-6">
                 <span className="text-3xl font-bold text-blue-600">
-                  ${featuredWatch1?.price.toLocaleString()}
+                  {formatTHB(featuredWatch1?.price)}
                 </span>
+                {featuredWatch1?.price != null && Number(featuredWatch1?.originalPrice) > Number(featuredWatch1?.price) && (<>
                 <span className="text-xl text-gray-500 line-through ml-4">
-                  ${featuredWatch1?.originalPrice.toLocaleString()}
+                  {formatTHB(featuredWatch1?.originalPrice)}
                 </span>
                 <span className="ml-4 hidden md:block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
-                  Save $
-                  {(
-                    featuredWatch1?.originalPrice - featuredWatch1?.price
-                  ).toLocaleString()}
+                  Save {formatTHB(featuredWatch1?.originalPrice - featuredWatch1?.price)}
                 </span>
+                </>)}
               </div>
               <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
                 <div className="flex items-center">

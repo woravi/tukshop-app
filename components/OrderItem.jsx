@@ -26,7 +26,7 @@ const OrderItem = ({ order }) => {
         </p>
         <p className="text-sm text-gray-500">Status: {order.status || "N/A"}</p>
         <p className="text-sm font-medium text-indigo-600">
-          Total: ${formatTotal(order.total)}
+          Total: {formatTotal(order.total)} (currency not recorded)
         </p>
       </div>
       <Button

@@ -1,3 +1,5 @@
+import { availableStock, stockLabel } from "@/lib/stock.mjs";
+import { formatTHB } from "@/lib/currency.mjs";
 import React, { useEffect, useState, useRef } from "react";
 import useCartStore from "@/store/cartStore";
 import Image from "next/image";
@@ -101,7 +103,8 @@ const MobileCart = ({ isOpen, onClose }) => {
                         <p className="text-xs text-gray-500">
                           {item?.brand} - {item?.material}
                         </p>
-                        <div className="flex items-center mt-2">
+                        <p className="text-xs text-gray-500">{stockLabel(item)}</p>
+                    <div className="flex items-center mt-2">
                           <button
                             onClick={() =>
                               handleQuantityChange(
@@ -123,6 +126,8 @@ const MobileCart = ({ isOpen, onClose }) => {
                                 (item.quantity || 1) + 1
                               )
                             }
+                            disabled={(item.quantity || 1) >= availableStock(item)}
+                            aria-label="Increase quantity"
                             className="p-1 bg-gray-200 rounded-full"
                           >
                             <Plus className="h-4 w-4" />
@@ -131,7 +136,7 @@ const MobileCart = ({ isOpen, onClose }) => {
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-sm text-gray-800">
-                          ${(item.price * (item.quantity || 1)).toFixed(2)}
+                          {formatTHB(item.price * (item.quantity || 1))}
                         </p>
                         <button
                           onClick={() => removeItem(item._id)}
@@ -147,7 +152,7 @@ const MobileCart = ({ isOpen, onClose }) => {
                   <div className="flex justify-between text-sm mb-2">
                     <span>Subtotal:</span>
                     <span className="font-semibold">
-                      ${getTotalPrice().toFixed(2)}
+                      {formatTHB(getTotalPrice())}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm mb-2">
@@ -158,7 +163,7 @@ const MobileCart = ({ isOpen, onClose }) => {
                   </div>
                   <div className="flex justify-between text-lg font-bold mt-4">
                     <span>Total:</span>
-                    <span>${getTotalPrice().toFixed(2)}</span>
+                    <span>{formatTHB(getTotalPrice())}</span>
                   </div>
                 </div>
                 <div className="space-y-3">

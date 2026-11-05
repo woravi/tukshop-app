@@ -89,8 +89,8 @@ export default function ProductPage() {
   };
 
   const handleAddToCart = () => {
-    addItem(product);
-    toast.success("Added item to cart");
+    if (addItem(product)) toast.success("Added item to cart");
+    else toast.error("Stock limit reached or unavailable");
   };
 
   const toggleWishlist = async () => {

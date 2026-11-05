@@ -66,13 +66,10 @@ export async function POST(req) {
     }
 
     const allReveiws = await Review.find({ product: objectIdProductId });
-    product.numReviews = allReveiws.length;
     const avgRating =
       allReveiws.reduce((acc, item) => item.rating + acc, 0) /
       allReveiws.length;
-    product.averageRating = avgRating;
-
-    await product.save();
+    await Product.findByIdAndUpdate(objectIdProductId, {numReviews: allReveiws.length, averageRating: avgRating});
 
     return NextResponse.json(
       {
@@ -115,13 +112,11 @@ export async function PUT(req) {
     review.comment = comment;
     await review.save();
 
-    const product = await Product.findById(review.product);
     const allReviews = await Review.find({ product: review.product });
     const avgRating =
       allReviews.reduce((acc, item) => item.rating + acc, 0) /
       allReviews.length;
-    product.averageRating = avgRating;
-    await product.save();
+    await Product.findByIdAndUpdate(review.product, {numReviews: allReviews.length, averageRating: avgRating});
 
     return NextResponse.json({ message: "Review updated" }, { status: 200 });
   } catch (error) {
@@ -188,20 +183,11 @@ export async function DELETE(req) {
     const productId = review.product;
     await Review.deleteOne({ _id: reviewId });
 
-    const product = await Product.findById(productId);
-
     const allReviews = await Review.find({ product: productId });
-    product.numReviews = allReviews.length;
-
-    if (product.numReviews > 0) {
-      const avgRating =
-        allReviews.reduce((acc, item) => item.rating + acc, 0) /
-        allReviews.length;
-      product.averageRating = avgRating;
-    } else {
-      product.averageRating = 0;
-    }
-    await product.save();
+    const averageRating = allReviews.length
+      ? allReviews.reduce((acc, item) => item.rating + acc, 0) / allReviews.length
+      : 0;
+    await Product.findByIdAndUpdate(productId, {numReviews: allReviews.length, averageRating});
 
     return NextResponse.json(
       { message: "Sucessfully deleted review" },

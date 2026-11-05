@@ -7,7 +7,7 @@ const ShippingReturnsPage = () => {
   const shippingInfo = [
     {
       title: "Free Domestic Shipping",
-      description: "Enjoy free shipping on all domestic orders over $100.",
+      description: "Contact us for current domestic shipping rates.",
       icon: <Truck className="w-8 h-8 text-blue-600" />,
     },
     {
@@ -104,8 +104,7 @@ const ShippingReturnsPage = () => {
             <h3 className="text-2xl font-semibold mb-4">Shipping Policy</h3>
             <p className="mb-6">
               We strive to process and ship all orders within 1-2 business days.
-              Domestic orders over $100 qualify for free shipping. For
-              international orders, shipping rates are calculated based on
+              For international orders, shipping rates are calculated based on
               destination and package weight. Please note that international
               customers may be responsible for duties and taxes upon delivery.
             </p>

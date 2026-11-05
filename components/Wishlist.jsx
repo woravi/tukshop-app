@@ -1,3 +1,5 @@
+import { availableStock, stockLabel } from "@/lib/stock.mjs";
+import { formatTHB } from "@/lib/currency.mjs";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -72,8 +74,8 @@ const Wishlist = () => {
   };
 
   const handleAddToCart = (product) => {
-    addItem(product);
-    toast.success("Added product to cart");
+    if (addItem(product)) toast.success("Added product to cart");
+    else toast.error("Stock limit reached or unavailable");
   };
 
   return (
@@ -112,7 +114,7 @@ const Wishlist = () => {
                     </p>
                   </Link>
                   <p className="text-sm text-gray-500">
-                    ${item.price.toFixed(2)}
+                    {formatTHB(item.price)} — {stockLabel(item)}
                   </p>
                 </div>
               </div>
@@ -130,6 +132,7 @@ const Wishlist = () => {
                   size="sm"
                   className="flex-1 sm:flex-none bg-[#535C91] text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:bg-[#3a4063] focus:outline-none flex items-center justify-center"
                   onClick={() => handleAddToCart(item)}
+                  disabled={availableStock(item) === 0}
                 >
                   <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
                 </Button>

@@ -1,3 +1,4 @@
+import { formatTHB } from "@/lib/currency.mjs";
 import React, { useEffect, useState } from "react";
 import { Input } from "../ui/input";
 import Link from "next/link";
@@ -96,10 +97,10 @@ const SearchDrawer = ({
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-lg font-bold text-blue-600">
-                            ${prod.price}
+                            {formatTHB(prod.price)}
                           </span>
                           <span className="text-sm text-gray-500 line-through">
-                            ${prod.originalPrice}
+                            {formatTHB(prod.originalPrice)}
                           </span>
                         </div>
                         <p className="text-xs text-gray-500 mt-1">
