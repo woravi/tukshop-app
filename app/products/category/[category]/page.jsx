@@ -5,9 +5,11 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import ProductGrid from "@/components/products/ProductGrid";
 import LoadingErrorComponent from "@/components/Loader/LoadingErrorComponent";
+import { normalizeCategoryParam } from "@/lib/category-navigation.mjs";
 
 export default function BagCategoryPage() {
-  const { category } = useParams();
+  const { category: categoryParam } = useParams();
+  const category = normalizeCategoryParam(categoryParam);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
