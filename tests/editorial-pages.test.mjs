@@ -40,14 +40,23 @@ test('about tells the verified demo-store story without fabricated business cred
   assert.doesNotMatch(html, /ก่อตั้งเมื่อ|กว่า \d+ ปี|ลูกค้ากว่า|รับประกันตลอดชีพ/);
 });
 
-test('contact clearly marks every channel as pending, requests no sensitive data and has no fake sending form', () => {
+test('contact publishes the supplied phone links, keeps unknown channels pending and preserves demo safeguards', () => {
   const html = render('app/contact/page.jsx');
-  for (const label of ['อีเมล', 'โทรศัพท์', 'LINE', 'ที่อยู่', 'เวลาติดต่อ']) assert.ok(html.includes(label), label);
-  assert.match(html, /รอยืนยัน/);
+  for (const [label, phone] of [['ติดต่อร้าน', '0816965575'], ['แอดมิน', '0955456533']]) {
+    assert.match(html, new RegExp(`<dt[^>]*>${label}</dt>\\s*<dd[^>]*><a[^>]*href="tel:${phone}"[^>]*>${phone}</a></dd>`));
+  }
+  assert.equal((html.match(/href="tel:/g) || []).length, 2);
+  for (const label of ['อีเมล', 'LINE / โซเชียล', 'ที่อยู่', 'เวลาติดต่อ']) {
+    assert.match(html, new RegExp(`<dt[^>]*>${label}</dt>\\s*<dd[^>]*>รอยืนยัน[^<]*</dd>`));
+  }
+  const metadata = load('app/contact/page.jsx').metadata;
+  assert.doesNotMatch(metadata.description, /โทรศัพท์.*รอยืนยัน/);
+  assert.doesNotMatch(html, /ยังไม่มีช่องทางติดต่อจริง|ไม่แสดงหมายเลข|ข้อมูลด้านล่างไม่ใช่ช่องทางที่เปิดให้ติดต่อ|รอยืนยันหมายเลข|เมื่อมีช่องทางจริงแล้ว/);
   assert.match(html, /ยังไม่เปิดรับข้อความผ่านเว็บไซต์/);
   assert.match(html, /ไม่เปิดรับการซื้อขายจริง/);
   assert.match(html, /ไม่ต้องส่งข้อมูลส่วนตัว/);
-  assert.doesNotMatch(html, /<form|<input|<textarea|mailto:|tel:|ส่งข้อความสำเร็จ|@[a-zA-Z0-9]|\b0\d{8,9}\b/);
+  assert.doesNotMatch(html, /<form|<input|<textarea|mailto:|ส่งข้อความสำเร็จ|@[a-zA-Z0-9]/);
+  assert.deepEqual([...new Set(html.match(/\b0\d{8,9}\b/g))].sort(), ['0816965575', '0955456533']);
   assert.match(html, /href="\/blog"/);
   assert.match(html, /href="\/about"/);
   assert.ok((html.match(/<h2\b/g) || []).length >= 3);
