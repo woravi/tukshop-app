@@ -1,8 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { Menu, X } from "lucide-react";
 import CartIcon from "../CartIcon";
@@ -16,6 +16,8 @@ import { Input } from "../ui/input";
 
 const Navbar = () => {
   const router = useRouter();
+  const pathname = usePathname();
+  const navbarRef = useRef(null);
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [productOpen, setProductOpen] = useState(false);
@@ -31,8 +33,32 @@ const Navbar = () => {
   const [isSearching, setIsSearching] = useState(false);
   const user = session?.user;
 
+  const closeMenus = useCallback(() => {
+    setIsOpen(false);
+    setProductOpen(false);
+    setProductModile(false);
+    setAdmin(false);
+    setAdminPanelMob(false);
+    setSearchOpen(false);
+  }, []);
+
+  useEffect(() => {
+    closeMenus();
+  }, [pathname, closeMenus]);
+
+  useEffect(() => {
+    const handleOutsidePointer = (event) => {
+      if (navbarRef.current && !navbarRef.current.contains(event.target)) {
+        closeMenus();
+      }
+    };
+    document.addEventListener("pointerdown", handleOutsidePointer);
+    return () => document.removeEventListener("pointerdown", handleOutsidePointer);
+  }, [closeMenus]);
+
   const handleMenuOpen = () => {
-    setIsOpen(!isOpen);
+    if (isOpen) closeMenus();
+    else setIsOpen(true);
   };
 
   console.log(session?.user);
@@ -46,9 +72,7 @@ const Navbar = () => {
     setAdminPanelMob(!adminPanelMob);
   };
 
-  const setMenuClose = () => {
-    setIsOpen(!isOpen);
-  };
+  const setMenuClose = closeMenus;
 
   const handleSearchClick = () => {
     setSearchOpen(true);
@@ -105,7 +129,7 @@ const Navbar = () => {
   }, [searchTerm]);
 
   return (
-    <div className="z-40">
+    <div ref={navbarRef} className="z-40">
       <div className="w-full bg-slate-50 h-14">
         <div className="pl-2 pt-2 md:hidden">
           {isOpen ? (
@@ -132,7 +156,10 @@ const Navbar = () => {
           <div className="mt-[-17px] flex ml-4">
             <button
               type="button"
-              onClick={() => router.push("/")}
+              onClick={() => {
+                closeMenus();
+                router.push("/");
+              }}
               className="mt-7 text-xl font-bold text-slate-900"
               aria-label="TukShop หน้าแรก"
             >
@@ -145,6 +172,7 @@ const Navbar = () => {
             />
           </div>
           <NavbarLinks
+            onNavigate={closeMenus}
             session={session}
             setProductOpen={setProductOpen}
             setAdmin={setAdmin}

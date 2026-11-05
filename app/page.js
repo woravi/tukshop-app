@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { formatTHB } from "@/lib/currency.mjs";
+import ShopHero from "@/components/HomepageComponents/HeroVideo";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -17,12 +18,8 @@ export default function Home() {
   }, []);
   return (
     <main className="bg-stone-50 text-stone-900">
-      <section className="bg-stone-900 px-6 py-24 text-center text-white md:py-32">
-        <p className="mb-4 text-sm tracking-[0.25em] text-stone-300">TUKSHOP</p>
-        <h1 className="text-4xl font-bold leading-tight md:text-6xl">กระเป๋าสำหรับทุกวันของคุณ</h1>
-        <p className="mx-auto mt-6 max-w-xl text-lg text-stone-300">เลือกชมกระเป๋าและรายละเอียดสินค้าจากแคตตาล็อกของร้าน</p>
-        <a href="#catalogue" className="mt-8 inline-block rounded-full bg-white px-8 py-3 font-semibold text-stone-900">เลือกชมสินค้า</a>
-      </section>
+      <div role="note" className="border-y border-[#dfd4c4] bg-[#f8f2e8] px-5 py-3 text-center text-sm leading-6 text-[#66543c]">เว็บไซต์สาธิต · ราคาที่แสดงเป็นราคาตัวอย่าง · ยังไม่เปิดรับคำสั่งซื้อหรือชำระเงินจริง</div>
+      <ShopHero />
       <section id="catalogue" className="mx-auto max-w-7xl px-5 py-16 md:py-20">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><p className="text-sm tracking-widest text-stone-500">TUKSHOP COLLECTION</p><h2 className="mt-2 text-3xl font-bold">กระเป๋าของเรา</h2></div><Link href="/products/category/all" className="underline underline-offset-4">ดูสินค้าทั้งหมด</Link></div>
         {status === "loading" && <p role="status">กำลังโหลดสินค้า...</p>}

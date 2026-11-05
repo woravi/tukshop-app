@@ -1,0 +1,162 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import vm from 'node:vm';
+import { fileURLToPath } from 'node:url';
+import React from 'react';
+import TestRenderer, { act } from 'react-test-renderer';
+
+const require = createRequire(import.meta.url);
+const { transformSync } = require('next/dist/build/swc');
+const root = new URL('../', import.meta.url);
+
+// Render the real navbar and menus; replace only framework/irrelevant UI boundaries.
+function mountNavbar(initialPath = '/') {
+  let pathname = initialPath;
+  const listeners = new Map();
+  const document = {
+    body: { style: {} },
+    addEventListener(name, fn) { listeners.set(name, fn); },
+    removeEventListener(name, fn) { if (listeners.get(name) === fn) listeners.delete(name); },
+  };
+  const host = tag => ({ children, ...props }) => React.createElement(tag, props, children);
+  const mocks = {
+    'next/navigation': { useRouter: () => ({ push() {} }), usePathname: () => pathname },
+    'next-auth/react': { useSession: () => ({ data: null }), signOut() {} },
+    'next/link': host('a'),
+    'next/image': host('img'),
+    axios: { get() { throw new Error('Unexpected network request'); } },
+    'lucide-react': Object.fromEntries(['Menu', 'X', 'Star', 'ChevronRight'].map(name => [name, host(name)])),
+    '@/components/ui/button': { Button: host('button') },
+    '../ui/input': { Input: host('input') },
+  };
+  const modules = new Map();
+  function load(name) {
+    if (modules.has(name)) return modules.get(name);
+    const code = transformSync(readFileSync(new URL(`components/Navbar/${name}.jsx`, root), 'utf8'), {
+      jsc: { parser: { syntax: 'ecmascript', jsx: true }, transform: { react: { runtime: 'classic' } } },
+      module: { type: 'commonjs' },
+    }).code;
+    const module = { exports: {} };
+    vm.runInNewContext(code, {
+      module, exports: module.exports, document,
+      console: { log() {} }, setTimeout, clearTimeout,
+      require(id) {
+        if (Object.hasOwn(mocks, id)) return mocks[id];
+        if (id.startsWith('@/lib/')) return require(fileURLToPath(new URL(id.replace('@/', ''), root)));
+        if (['./ProductDrawer', './MobileMenu', './NavbarLinks'].includes(id)) return load(id.slice(2));
+        if (id.startsWith('.')) return { __esModule: true, default: () => null };
+        return require(id);
+      },
+    }, { filename: `${name}.jsx` });
+    modules.set(name, module.exports);
+    return module.exports;
+  }
+  const Navbar = load('Navbar').default;
+  let renderer;
+  act(() => { renderer = TestRenderer.create(React.createElement(Navbar), {
+    createNodeMock: () => ({ contains: target => Boolean(target?.insideNavbar) }),
+  }); });
+  const component = name => renderer.root.findByType(load(name).default);
+  return {
+    renderer, document, listeners, component,
+    navigate(path) { pathname = path; act(() => renderer.update(React.createElement(Navbar))); },
+    openDesktop() { act(() => component('NavbarLinks').props.setProductOpen(true)); },
+    openMobile() {
+      act(() => renderer.root.findByType('Menu').props.onClick());
+      act(() => component('MobileMenu').props.setProductModile(true));
+    },
+    dispose() { act(() => renderer.unmount()); },
+  };
+}
+
+for (const path of ['/blog', '/contact', '/about']) {
+  test(`desktop navigation to ${path} dismisses categories even on the current route`, () => {
+    const app = mountNavbar(path);
+    try {
+      app.openDesktop();
+      const link = app.component('NavbarLinks').findByProps({ href: path });
+      act(() => link.props.onClick?.());
+      assert.equal(app.component('ProductDrawer').props.productOpen, false);
+    } finally { app.dispose(); }
+  });
+}
+
+test('closing mobile navigation resets its category submenu and is idempotent', () => {
+  const app = mountNavbar('/contact');
+  try {
+    app.openMobile();
+    const close = app.component('MobileMenu').props.setMenuClose;
+    act(() => { close(); close(); });
+    assert.equal(app.component('MobileMenu').props.isOpen, false);
+    assert.equal(app.component('MobileMenu').props.productModile, false);
+    act(() => close());
+    assert.equal(app.component('MobileMenu').props.isOpen, false);
+  } finally { app.dispose(); }
+});
+
+for (const path of ['/blog', '/contact']) {
+  test(`mobile navigation to ${path} closes categories and does not reopen on a second close`, () => {
+    const app = mountNavbar(path);
+    try {
+      app.openMobile();
+      const button = app.component('MobileMenu').findAllByType('button')
+        .find(node => node.findAllByProps({ href: path }).length);
+      act(() => button.props.onClick());
+      assert.equal(app.component('MobileMenu').props.isOpen, false);
+      assert.equal(app.component('MobileMenu').props.productModile, false);
+      act(() => button.props.onClick());
+      assert.equal(app.component('MobileMenu').props.isOpen, false);
+    } finally { app.dispose(); }
+  });
+}
+
+test('desktop and mobile category links retain their routes and dismiss on selection', () => {
+  const app = mountNavbar();
+  const { BAG_CATEGORIES } = require('../lib/product-categories.mjs');
+  const { categoryHref } = require('../lib/category-navigation.mjs');
+  const expected = ['all', ...BAG_CATEGORIES].map(categoryHref);
+  try {
+    app.openDesktop();
+    const desktopLinks = app.component('ProductDrawer').findAllByType('a');
+    assert.deepEqual(desktopLinks.map(link => link.props.href), expected);
+    act(() => desktopLinks[1].props.onClick());
+    assert.equal(app.component('ProductDrawer').props.productOpen, false);
+    app.openMobile();
+    const buttons = app.component('MobileMenu').findAllByType('button')
+      .filter(node => node.findAllByType('a').some(link => expected.includes(link.props.href)));
+    assert.deepEqual(buttons.map(button => button.findByType('a').props.href), expected);
+    act(() => buttons[1].props.onClick());
+    assert.equal(app.component('MobileMenu').props.isOpen, false);
+    assert.equal(app.component('MobileMenu').props.productModile, false);
+  } finally { app.dispose(); }
+});
+
+test('outside pointer presses dismiss categories but presses inside navigation do not', () => {
+  const app = mountNavbar();
+  try {
+    app.openDesktop();
+    assert.equal(typeof app.listeners.get('pointerdown'), 'function');
+    act(() => app.listeners.get('pointerdown')({ target: { insideNavbar: true } }));
+    assert.equal(app.component('ProductDrawer').props.productOpen, true);
+    act(() => app.listeners.get('pointerdown')({ target: {} }));
+    assert.equal(app.component('ProductDrawer').props.productOpen, false);
+  } finally { app.dispose(); }
+  assert.equal(app.listeners.has('pointerdown'), false);
+});
+
+test('route changes dismiss desktop categories and reset the mobile menu', () => {
+  const app = mountNavbar();
+  try {
+    app.openDesktop();
+    app.openMobile();
+    assert.equal(app.component('ProductDrawer').props.productOpen, true);
+    assert.equal(app.component('MobileMenu').props.productModile, true);
+    app.navigate('/blog');
+    assert.equal(app.component('ProductDrawer').props.productOpen, false);
+    assert.equal(app.component('MobileMenu').props.isOpen, false);
+    assert.equal(app.component('MobileMenu').props.productModile, false);
+    assert.equal(app.document.body.style.overflow, 'auto');
+  } finally { app.dispose(); }
+});

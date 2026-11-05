@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-const NavbarLinks = ({ session, setProductOpen, setAdmin }) => {
+const NavbarLinks = ({ session, setProductOpen, setAdmin, onNavigate }) => {
   return (
     <ul className="flex pt-2">
       <li className="px-2">
@@ -17,7 +17,7 @@ const NavbarLinks = ({ session, setProductOpen, setAdmin }) => {
       </li>
       <li className="px-2">
         <Button >
-          <Link href="/blog">
+          <Link href="/blog" onClick={onNavigate}>
             <span className="text-lg no-underline transition-all duration-300 hover:text-sky-400/90">
               Blog
             </span>
@@ -26,7 +26,7 @@ const NavbarLinks = ({ session, setProductOpen, setAdmin }) => {
       </li>
       <li className="px-2">
         <Button>
-          <Link href="/contact">
+          <Link href="/contact" onClick={onNavigate}>
             <span className="text-lg no-underline transition-all duration-300 hover:text-sky-400/90">
               Contact
             </span>
@@ -35,7 +35,7 @@ const NavbarLinks = ({ session, setProductOpen, setAdmin }) => {
       </li>
       <li className="px-2">
         <Button>
-          <Link href="/about">
+          <Link href="/about" onClick={onNavigate}>
             <span className="text-lg no-underline transition-all duration-300 hover:text-sky-400/90">
               About
             </span>
